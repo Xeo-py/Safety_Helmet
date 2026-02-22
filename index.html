@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safenet | Industrial Monitor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+    
+    <div id="loader" class="loader-wrapper">
+        <div class="loader-content">
+            <i class="fas fa-shield-alt pulse-icon"></i>
+            <h2 id="load-text">Initializing Safenet...</h2>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+    </div>
+
+    <div class="bg-animation">
+        <ul class="circles"><li></li><li></li><li></li><li></li><li></li></ul>
+    </div>
+
+    <nav>
+        <div class="logo">
+            <i class="fas fa-cog gear-icon"></i>
+            <span>Safenet</span>
+        </div>
+        <div class="nav-right">
+            <div id="connection-status" class="status-pill">
+                <i class="fas fa-satellite-dish"></i> <span data-en="SYNCED" data-hi="सिंक किया गया">SYNCED</span>
+            </div>
+            
+            <div class="menu-container">
+                <button id="menu-btn" class="icon-btn"><i class="fas fa-ellipsis-v"></i></button>
+                <div id="dropdown-menu" class="dropdown-content">
+                    <a href="#" onclick="location.reload()"><i class="fas fa-home"></i> <span data-en="Home" data-hi="होम">Home</span></a>
+                    
+                    <div class="menu-divider"></div>
+                    <div class="menu-label" data-en="Theme" data-hi="थीम">Theme</div>
+                    <a href="#" id="set-light"><i class="fas fa-sun"></i> <span data-en="Light" data-hi="लाइट">Light</span></a>
+                    <a href="#" id="set-dark"><i class="fas fa-moon"></i> <span data-en="Dark" data-hi="डार्क">Dark</span></a>
+                    
+                    <div class="menu-divider"></div>
+                    <div class="menu-label" data-en="Language" data-hi="भाषा">Language</div>
+                    <a href="#" id="set-en"><i class="fas fa-flag-usa"></i> English</a>
+                    <a href="#" id="set-hi"><i class="fas fa-flag"></i> हिन्दी</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="content-area">
+        <div id="main-card" class="hero-card">
+            <div class="emergency-pulse"></div>
+            <div class="card-header">
+                <span class="device-id">ID: HELMET_01</span>
+                <span id="live-dot" class="dot green"></span>
+            </div>
+            <h1 id="status-text" data-en="SYSTEM SECURE" data-hi="सिस्टम सुरक्षित">SYSTEM SECURE</h1>
+            <div class="vitals-grid">
+                <div class="vital-box temp">
+                    <i class="fas fa-thermometer-half"></i>
+                    <small data-en="Temperature" data-hi="तापमान">Temperature</small>
+                    <b id="val-temp">--°C</b>
+                </div>
+                <div class="vital-box gas">
+                    <i class="fas fa-wind"></i>
+                    <small data-en="Gas Level" data-hi="गैस स्तर">Gas Level</small>
+                    <b id="val-gas">--</b>
+                </div>
+            </div>
+            <div class="alert-strips">
+                <div class="strip"><i class="fas fa-user-injured"></i><span data-en="Fall Status" data-hi="गिरावट">Fall Status</span><strong id="status-fall">STABLE</strong></div>
+                <div class="strip"><i class="fas fa-hand-paper"></i><span data-en="SOS Signal" data-hi="SOS संकेत">SOS Signal</span><strong id="status-sos">OFF</strong></div>
+            </div>
+        </div>
+    </main>
+
+    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/emergency_siren.ogg" preload="auto"></audio>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
