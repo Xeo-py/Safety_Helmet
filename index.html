@@ -1,83 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Safenet | Industrial Monitor</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Safenet | Worker Safety Monitor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="dark-mode">
-    
-    <div id="loader" class="loader-wrapper">
-        <div class="loader-content">
-            <i class="fas fa-shield-alt pulse-icon"></i>
-            <h2 id="load-text">Initializing Safenet...</h2>
-            <div class="progress-bar"><div class="progress-fill"></div></div>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-st top"></div><div class="ld-st bot"></div>
+  <div class="ld-inner">
+    <div class="ld-ring"><i class="fas fa-hard-hat"></i></div>
+    <div class="ld-title">SAFENET</div>
+    <div class="ld-sub">WORKER SAFETY MONITOR</div>
+    <div class="ld-msg" id="load-msg">INITIALIZING SAFETY SYSTEMS</div>
+    <div class="ld-bar"><div class="ld-fill"></div></div>
+  </div>
+</div>
+
+<div class="bg-pattern"></div>
+
+<!-- EMERGENCY BORDER -->
+<div id="emrg-wrap">
+  <div class="emrg-edge et"></div><div class="emrg-edge eb"></div>
+  <div class="emrg-edge el"></div><div class="emrg-edge er"></div>
+</div>
+
+<div id="toast-zone"></div>
+
+<!-- RED ALERT MODAL -->
+<div id="alert-modal" style="display:none">
+  <div class="alm-backdrop"></div>
+  <div class="alm-box">
+    <div class="alm-tape"></div>
+    <div class="alm-inner">
+      <div class="alm-icon-ring">
+        <i class="fas fa-radiation alm-spin-icon"></i>
+      </div>
+      <div class="alm-unit">HELMET_01</div>
+      <div class="alm-heading">⚠ DANGER ALERT</div>
+      <div class="alm-reasons" id="alm-reasons"></div>
+      <div class="alm-time" id="alm-time"></div>
+      <div class="alm-actions">
+        <button class="alm-dismiss ripple-host" id="alm-dismiss">
+          <i class="fas fa-check-circle"></i> ACKNOWLEDGE &amp; DISMISS
+        </button>
+        <button class="alm-mute ripple-host" id="alm-mute">
+          <i class="fas fa-volume-mute"></i> MUTE
+        </button>
+      </div>
+      <div class="alm-auto" id="alm-auto"></div>
+    </div>
+    <div class="alm-tape"></div>
+  </div>
+</div>
+
+<!-- ALERT SIDEBAR -->
+<div id="alert-sidebar">
+  <div class="as-head">
+    <h3>⚠ ALERT LOG</h3>
+    <div class="as-actions">
+      <button class="as-export" id="export-alerts"><i class="fas fa-download"></i> CSV</button>
+      <button class="as-clear" id="clear-alerts">CLEAR</button>
+    </div>
+  </div>
+  <div class="as-body" id="as-body">
+    <div class="as-empty"><i class="fas fa-shield-alt"></i>NO ALERTS RECORDED</div>
+  </div>
+</div>
+
+<!-- MOBILE DRAWER -->
+<div id="mobile-drawer">
+  <div class="drawer-tape"></div>
+  <div class="drawer-section">
+    <div class="drawer-label">Navigation</div>
+    <div class="drawer-tabs">
+      <button class="drawer-btn active-page" data-page="dashboard"><i class="fas fa-chart-line"></i>Dashboard</button>
+      <button class="drawer-btn" data-page="history"><i class="fas fa-list"></i>History</button>
+      <button class="drawer-btn" data-page="settings"><i class="fas fa-cog"></i>Settings</button>
+    </div>
+  </div>
+  <div class="drawer-section">
+    <div class="drawer-label">Theme</div>
+    <button class="drawer-btn" id="dr-dark"><i class="fas fa-moon"></i>Dark Mode</button>
+    <button class="drawer-btn" id="dr-light"><i class="fas fa-sun"></i>Light Mode</button>
+  </div>
+  <div class="drawer-section">
+    <div class="drawer-label">Language</div>
+    <button class="drawer-btn" id="dr-en"><i class="fas fa-globe"></i>English</button>
+    <button class="drawer-btn" id="dr-hi"><i class="fas fa-globe"></i>हिन्दी</button>
+  </div>
+  <div class="drawer-section">
+    <button class="drawer-btn" onclick="location.reload()"><i class="fas fa-rotate-right"></i>Reload</button>
+  </div>
+</div>
+<div id="drawer-overlay"></div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-tape"></div>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#" onclick="return false">
+      <div class="logo-hex"><i class="fas fa-hard-hat"></i></div>
+      <div class="logo-wm">
+        <div class="logo-main">SAFENET</div>
+        <div class="logo-tag">INDUSTRIAL SAFETY MONITOR</div>
+      </div>
+    </a>
+    <div class="nav-tabs">
+      <button class="n-tab active ripple-host" data-page="dashboard">Dashboard</button>
+      <button class="n-tab ripple-host" data-page="history">History</button>
+      <button class="n-tab ripple-host" data-page="settings">Settings</button>
+    </div>
+    <div class="nav-right">
+      <div class="status-pill" id="conn-pill">
+        <span class="pill-dot"></span>
+        <span class="pill-txt" id="conn-txt" data-en="ALL CLEAR" data-hi="सुरक्षित">ALL CLEAR</span>
+      </div>
+      <button class="icon-btn ripple-host" id="bell-btn" title="Alerts">
+        <i class="fas fa-bell"></i>
+        <span class="n-badge" id="n-badge" style="display:none">0</span>
+      </button>
+      <div class="menu-wrap">
+        <button class="icon-btn ripple-host" id="menu-btn"><i class="fas fa-bars"></i></button>
+        <div class="dropdown" id="dropdown">
+          <div class="dd-head">⚙ CONTROLS</div>
+          <div class="dd-sl">Theme</div>
+          <button class="dd-btn" id="dd-dark"><i class="fas fa-moon"></i><span data-en="Dark Mode" data-hi="डार्क">Dark Mode</span></button>
+          <button class="dd-btn" id="dd-light"><i class="fas fa-sun"></i><span data-en="Light Mode" data-hi="लाइट">Light Mode</span></button>
+          <div class="dd-sl">Language</div>
+          <button class="dd-btn" id="dd-en"><i class="fas fa-globe"></i>English</button>
+          <button class="dd-btn" id="dd-hi"><i class="fas fa-globe"></i>हिन्दी</button>
+          <div class="dd-sl">Actions</div>
+          <button class="dd-btn" id="dd-export"><i class="fas fa-download"></i>Export CSV</button>
+          <button class="dd-btn" onclick="window.print()"><i class="fas fa-print"></i>Print</button>
+          <button class="dd-btn" onclick="location.reload()"><i class="fas fa-rotate-right"></i>Reload</button>
         </div>
+      </div>
+      <div class="hamburger ripple-host" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="page active" id="page-dashboard">
+<div class="content">
+
+  <div class="status-banner" id="status-banner">
+    <div class="sb-tape"></div>
+    <div class="sb-body">
+      <div class="sb-left">
+        <div class="sb-hex" id="sb-hex"><i class="fas fa-shield-alt" id="sb-hex-i"></i></div>
+        <div>
+          <div class="sb-word" id="sb-word" data-en="ALL CLEAR" data-hi="सुरक्षित">ALL CLEAR</div>
+          <div class="sb-sub" id="sb-sub" data-en="All safety parameters within limits" data-hi="सभी पैरामीटर सुरक्षित">All safety parameters within limits</div>
+          <div class="sb-meta">
+            <div class="sb-chip y">HELMET_01</div>
+            <div class="sb-chip" id="clock-chip">--:--:--</div>
+            <div class="sb-chip" id="uptime-chip">UP: 00:00:00</div>
+          </div>
+        </div>
+      </div>
+      <div class="health-ring-wrap">
+        <div class="health-ring">
+          <svg viewBox="0 0 60 60">
+            <circle class="hr-bg" cx="30" cy="30" r="24"/>
+            <circle class="hr-fill" id="hr-fill" cx="30" cy="30" r="24"/>
+          </svg>
+          <div class="health-score-num">
+            <div class="hs-num" id="hs-num">100</div>
+            <div class="hs-lbl">HEALTH</div>
+          </div>
+        </div>
+        <div class="health-info">
+          <div class="hi-title" data-en="SAFETY SCORE" data-hi="सुरक्षा स्कोर">SAFETY SCORE</div>
+          <div class="hi-status" id="hi-status">EXCELLENT</div>
+        </div>
+      </div>
+      <div class="sb-readings">
+        <div class="sb-read ripple-host">
+          <div class="sb-rv safe-v" id="sb-temp">--°C</div>
+          <div class="sb-rl" data-en="TEMPERATURE" data-hi="तापमान">TEMPERATURE</div>
+        </div>
+        <div class="sb-read ripple-host">
+          <div class="sb-rv safe-v" id="sb-gas">--</div>
+          <div class="sb-rl" data-en="GAS PPM" data-hi="गैस PPM">GAS PPM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- ALERTS PANEL -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title" data-en="SAFETY ALERTS" data-hi="सुरक्षा अलर्ट">SAFETY ALERTS</div>
+        <div class="panel-badge" id="alert-badge">LIVE</div>
+      </div>
+      <div class="panel-body" style="display:flex;flex-direction:column;gap:9px">
+        <div class="alert-card ripple-host" id="fall-card">
+          <div class="ac-icon safe-i" id="fall-icon"><i class="fas fa-user-check"></i></div>
+          <div>
+            <div class="ac-name" data-en="FALL DETECTION" data-hi="गिरावट पहचान">FALL DETECTION</div>
+            <div class="ac-val" id="fall-val" style="color:var(--green)">STABLE</div>
+          </div>
+        </div>
+        <div class="alert-card ripple-host" id="sos-card">
+          <div class="ac-icon safe-i" id="sos-icon"><i class="fas fa-hand-paper"></i></div>
+          <div>
+            <div class="ac-name" data-en="SOS SIGNAL" data-hi="SOS संकेत">SOS SIGNAL</div>
+            <div class="ac-val" id="sos-val" style="color:var(--green)">INACTIVE</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="bg-animation">
-        <ul class="circles"><li></li><li></li><li></li><li></li><li></li></ul>
+    <!-- GAUGES PANEL -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title" data-en="LIVE GAUGES" data-hi="लाइव गेज">LIVE GAUGES</div>
+        <div class="panel-badge green">REAL-TIME</div>
+      </div>
+      <div class="panel-body">
+        <div class="gauge-wrap">
+          <div class="gauge">
+            <svg viewBox="0 0 120 70">
+              <path d="M10,65 A55,55 0 0,1 110,65" class="gauge-arc-bg" stroke-linecap="round"/>
+              <path id="gauge-temp-arc" d="M10,65 A55,55 0 0,1 110,65" class="gauge-arc-fill" stroke="var(--green)" stroke-dasharray="173" stroke-dashoffset="173"/>
+              <text id="gauge-temp-val" class="gauge-val" x="60" y="60" text-anchor="middle">--</text>
+              <text class="gauge-unit" x="60" y="70" text-anchor="middle">°C</text>
+            </svg>
+            <div class="gauge-label" data-en="TEMPERATURE" data-hi="तापमान">TEMPERATURE</div>
+          </div>
+          <div class="gauge">
+            <svg viewBox="0 0 120 70">
+              <path d="M10,65 A55,55 0 0,1 110,65" class="gauge-arc-bg" stroke-linecap="round"/>
+              <path id="gauge-gas-arc" d="M10,65 A55,55 0 0,1 110,65" class="gauge-arc-fill" stroke="var(--green)" stroke-dasharray="173" stroke-dashoffset="173"/>
+              <text id="gauge-gas-val" class="gauge-val" x="60" y="60" text-anchor="middle">--</text>
+              <text class="gauge-unit" x="60" y="70" text-anchor="middle">PPM</text>
+            </svg>
+            <div class="gauge-label" data-en="GAS LEVEL" data-hi="गैस स्तर">GAS LEVEL</div>
+          </div>
+        </div>
+        <div class="metrics-4" style="margin-top:10px">
+          <div class="metric-box"><span class="metric-val" id="m-temp">--</span><div class="metric-lbl" data-en="TEMP °C" data-hi="तापमान">TEMP °C</div></div>
+          <div class="metric-box"><span class="metric-val" id="m-gas">--</span><div class="metric-lbl" data-en="GAS PPM" data-hi="गैस">GAS PPM</div></div>
+        </div>
+      </div>
     </div>
 
-    <nav>
-        <div class="logo">
-            <i class="fas fa-cog gear-icon"></i>
-            <span>Safenet</span>
+    <!-- SYSTEM PANEL -->
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="panel-title" data-en="SYSTEM STATUS" data-hi="सिस्टम स्थिति">SYSTEM STATUS</div>
+        <div class="panel-badge" id="sys-badge">v2.4</div>
+      </div>
+      <div class="panel-body">
+        <div class="sys-rows">
+          <div class="sys-row"><div class="sys-row-l"><i class="fas fa-wifi"></i><span class="sys-row-name" data-en="FIREBASE" data-hi="फायरबेस">FIREBASE</span></div><div class="sys-v" style="color:var(--green)">LIVE</div></div>
+          <div class="sys-row"><div class="sys-row-l"><i class="fas fa-hard-hat"></i><span class="sys-row-name">UNIT ID</span></div><div class="sys-v" style="color:var(--yellow)">HELM_01</div></div>
+          <div class="sys-row"><div class="sys-row-l"><i class="fas fa-thermometer-half"></i><span class="sys-row-name" data-en="PEAK TEMP" data-hi="उच्चतम">PEAK TEMP</span></div><div class="sys-v" id="sys-peak" style="color:var(--orange)">--</div></div>
+          <div class="sys-row"><div class="sys-row-l"><i class="fas fa-bell"></i><span class="sys-row-name" data-en="TOTAL EVENTS" data-hi="कुल घटनाएं">TOTAL EVENTS</span></div><div class="sys-v" id="sys-events" style="color:var(--yellow)">0</div></div>
+          <div class="sys-row"><div class="sys-row-l"><i class="fas fa-clock"></i><span class="sys-row-name" data-en="UPTIME" data-hi="अपटाइम">UPTIME</span></div><div class="sys-v" id="sys-uptime" style="color:var(--yellow)">00:00:00</div></div>
         </div>
-        <div class="nav-right">
-            <div id="connection-status" class="status-pill">
-                <i class="fas fa-satellite-dish"></i> <span data-en="SYNCED" data-hi="सिंक किया गया">SYNCED</span>
-            </div>
-            
-            <div class="menu-container">
-                <button id="menu-btn" class="icon-btn"><i class="fas fa-ellipsis-v"></i></button>
-                <div id="dropdown-menu" class="dropdown-content">
-                    <a href="#" onclick="location.reload()"><i class="fas fa-home"></i> <span data-en="Home" data-hi="होम">Home</span></a>
-                    
-                    <div class="menu-divider"></div>
-                    <div class="menu-label" data-en="Theme" data-hi="थीम">Theme</div>
-                    <a href="#" id="set-light"><i class="fas fa-sun"></i> <span data-en="Light" data-hi="लाइट">Light</span></a>
-                    <a href="#" id="set-dark"><i class="fas fa-moon"></i> <span data-en="Dark" data-hi="डार्क">Dark</span></a>
-                    
-                    <div class="menu-divider"></div>
-                    <div class="menu-label" data-en="Language" data-hi="भाषा">Language</div>
-                    <a href="#" id="set-en"><i class="fas fa-flag-usa"></i> English</a>
-                    <a href="#" id="set-hi"><i class="fas fa-flag"></i> हिन्दी</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+      </div>
+    </div>
 
-    <main class="content-area">
-        <div id="main-card" class="hero-card">
-            <div class="emergency-pulse"></div>
-            <div class="card-header">
-                <span class="device-id">ID: HELMET_01</span>
-                <span id="live-dot" class="dot green"></span>
-            </div>
-            <h1 id="status-text" data-en="SYSTEM SECURE" data-hi="सिस्टम सुरक्षित">SYSTEM SECURE</h1>
-            <div class="vitals-grid">
-                <div class="vital-box temp">
-                    <i class="fas fa-thermometer-half"></i>
-                    <small data-en="Temperature" data-hi="तापमान">Temperature</small>
-                    <b id="val-temp">--°C</b>
-                </div>
-                <div class="vital-box gas">
-                    <i class="fas fa-wind"></i>
-                    <small data-en="Gas Level" data-hi="गैस स्तर">Gas Level</small>
-                    <b id="val-gas">--</b>
-                </div>
-            </div>
-            <div class="alert-strips">
-                <div class="strip"><i class="fas fa-user-injured"></i><span data-en="Fall Status" data-hi="गिरावट">Fall Status</span><strong id="status-fall">STABLE</strong></div>
-                <div class="strip"><i class="fas fa-hand-paper"></i><span data-en="SOS Signal" data-hi="SOS संकेत">SOS Signal</span><strong id="status-sos">OFF</strong></div>
-            </div>
+    <!-- CHART PANEL -->
+    <div class="panel chart-full">
+      <div class="panel-hd">
+        <div class="panel-title" data-en="LIVE SENSOR FEED" data-hi="लाइव सेंसर">LIVE SENSOR FEED</div>
+        <div class="chart-legend">
+          <div class="cl"><span class="cl-bar" style="background:var(--yellow)"></span><span data-en="TEMP °C" data-hi="तापमान">TEMP °C</span></div>
+          <div class="cl"><span class="cl-bar" style="background:var(--orange)"></span><span data-en="GAS PPM" data-hi="गैस">GAS PPM</span></div>
         </div>
-    </main>
+      </div>
+      <div class="panel-body" style="padding-bottom:12px">
+        <div id="chart-wrap" style="position:relative">
+          <canvas id="sparkline"></canvas>
+          <div id="chart-tip"></div>
+        </div>
+      </div>
+    </div>
 
-    <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/emergency_siren.ogg" preload="auto"></audio>
-    <script type="module" src="script.js"></script>
+  </div>
+</div>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div class="page" id="page-history">
+<div class="content">
+  <div class="page-banner">
+    <div class="pg-title" data-en="EVENT LOG" data-hi="घटना लॉग">EVENT LOG</div>
+    <div class="filter-row">
+      <button class="f-btn active ripple-host" data-f="all" data-en="ALL" data-hi="सभी">ALL</button>
+      <button class="f-btn ripple-host" data-f="danger" data-en="DANGER" data-hi="खतरा">DANGER</button>
+      <button class="f-btn ripple-host" data-f="warn" data-en="WARN" data-hi="चेतावनी">WARN</button>
+      <button class="f-btn ripple-host" data-f="safe" data-en="SAFE" data-hi="सुरक्षित">SAFE</button>
+    </div>
+  </div>
+  <div class="table-controls">
+    <div class="tbl-search"><i class="fas fa-search"></i><input type="text" id="log-search" placeholder="Search events..." data-en-placeholder="Search events..." data-hi-placeholder="खोजें..."></div>
+    <button class="export-btn ripple-host" id="export-csv-btn"><i class="fas fa-download"></i>EXPORT CSV</button>
+  </div>
+  <div class="table-wrap">
+    <table class="data-tbl">
+      <thead><tr>
+        <th data-en="TIMESTAMP" data-hi="समय">TIMESTAMP</th>
+        <th data-en="EVENT" data-hi="घटना">EVENT</th>
+        <th data-en="VALUE" data-hi="मूल्य">VALUE</th>
+        <th data-en="SEVERITY" data-hi="स्तर">SEVERITY</th>
+      </tr></thead>
+      <tbody id="log-body">
+        <tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-dim);font-family:var(--mono);font-size:.74rem;letter-spacing:.12em">NO EVENTS RECORDED YET</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="page" id="page-settings">
+<div class="content">
+  <div class="page-banner" style="margin-bottom:16px">
+    <div class="pg-title" data-en="SETTINGS" data-hi="सेटिंग">SETTINGS</div>
+  </div>
+  <div class="set-grid">
+
+    <div class="set-box">
+      <div class="set-box-hd" data-en="APPEARANCE" data-hi="दिखावट">APPEARANCE</div>
+      <div class="set-rows">
+        <div class="set-row">
+          <div><div class="set-label" data-en="Display Theme" data-hi="थीम">Display Theme</div><div class="set-sub" data-en="Switch light/dark mode" data-hi="लाइट/डार्क">Switch light/dark mode</div></div>
+          <div class="choice-row">
+            <button class="ch-btn active ripple-host" id="s-dark"><i class="fas fa-moon"></i><span data-en="Dark" data-hi="डार्क">Dark</span></button>
+            <button class="ch-btn ripple-host" id="s-light"><i class="fas fa-sun"></i><span data-en="Light" data-hi="लाइट">Light</span></button>
+          </div>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Language" data-hi="भाषा">Language</div><div class="set-sub" data-en="Interface language" data-hi="इंटरफ़ेस भाषा">Interface language</div></div>
+          <div class="choice-row">
+            <button class="ch-btn active ripple-host" id="s-en">EN</button>
+            <button class="ch-btn ripple-host" id="s-hi">हि</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-box">
+      <div class="set-box-hd" data-en="ALERT THRESHOLDS" data-hi="अलर्ट सीमाएं">ALERT THRESHOLDS</div>
+      <div class="set-rows">
+        <div class="set-row">
+          <div><div class="set-label" data-en="Temp Threshold (°C)" data-hi="तापमान सीमा">Temp Threshold (°C)</div><div class="set-sub" id="ts-sub">Trigger at: 45°C</div></div>
+          <div class="rng-wrap"><input type="range" id="t-thresh" min="25" max="90" value="45"><span class="rng-v" id="t-v">45°C</span></div>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Gas Threshold (ppm)" data-hi="गैस सीमा">Gas Threshold (ppm)</div><div class="set-sub" id="gs-sub">Trigger at: 100 ppm</div></div>
+          <div class="rng-wrap"><input type="range" id="g-thresh" min="20" max="400" value="100"><span class="rng-v" id="g-v">100</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-box">
+      <div class="set-box-hd" data-en="NOTIFICATIONS" data-hi="सूचनाएं">NOTIFICATIONS</div>
+      <div class="set-rows">
+        <div class="set-row">
+          <div><div class="set-label" data-en="Alarm Sound" data-hi="अलार्म ध्वनि">Alarm Sound</div><div class="set-sub" data-en="Siren on danger events" data-hi="खतरे पर सायरन">Siren on danger events</div></div>
+          <label class="tog"><input type="checkbox" id="tog-snd" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Caution Border Flash" data-hi="फ्लैश बॉर्डर">Caution Border Flash</div><div class="set-sub" data-en="Hazard tape on alert" data-hi="अलर्ट पर हज़ार्ड टेप">Hazard tape on alert</div></div>
+          <label class="tog"><input type="checkbox" id="tog-flash" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Red Alert Modal" data-hi="रेड अलर्ट पॉपअप">Red Alert Modal</div><div class="set-sub" data-en="Full-screen popup on danger" data-hi="खतरे पर पूर्ण-स्क्रीन पॉपअप">Full-screen popup on danger</div></div>
+          <label class="tog"><input type="checkbox" id="tog-modal" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Voice Announcement" data-hi="आवाज़ घोषणा">Voice Announcement</div><div class="set-sub" data-en="Speak the alert reason aloud" data-hi="अलर्ट का कारण बोलें">Speak the alert reason aloud</div></div>
+          <label class="tog"><input type="checkbox" id="tog-voice" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Auto-Dismiss Timer" data-hi="ऑटो-बंद टाइमर">Auto-Dismiss Timer</div><div class="set-sub" id="autodismiss-sub">Dismiss after: 30s</div></div>
+          <div class="rng-wrap">
+            <input type="range" id="autodismiss-range" min="0" max="120" step="5" value="30">
+            <span class="rng-v" id="autodismiss-v">30s</span>
+          </div>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label" data-en="Log All Events" data-hi="घटनाएं लॉग करें">Log All Events</div><div class="set-sub" data-en="Record state changes" data-hi="बदलाव रिकॉर्ड करें">Record state changes</div></div>
+          <label class="tog"><input type="checkbox" id="tog-log" checked><span class="tog-sl"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-box" style="grid-column:span 2">
+      <div class="set-box-hd" data-en="ANOMALY ALERT TRIGGERS" data-hi="अनोमली अलर्ट ट्रिगर">ANOMALY ALERT TRIGGERS</div>
+      <div class="set-rows" style="display:grid;grid-template-columns:1fr 1fr">
+        <div class="set-row" style="border-right:1px solid var(--border)">
+          <div>
+            <div class="set-label"><i class="fas fa-temperature-high" style="color:var(--orange);margin-right:6px"></i> High Temperature</div>
+            <div class="set-sub">Alert when temp exceeds threshold</div>
+          </div>
+          <label class="tog"><input type="checkbox" id="trig-temp" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="set-label"><i class="fas fa-smog" style="color:var(--orange);margin-right:6px"></i> Toxic Gas</div>
+            <div class="set-sub">Alert when gas exceeds threshold</div>
+          </div>
+          <label class="tog"><input type="checkbox" id="trig-gas" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row" style="border-right:1px solid var(--border);border-bottom:none">
+          <div>
+            <div class="set-label"><i class="fas fa-person-falling" style="color:var(--red);margin-right:6px"></i> Fall Detection</div>
+            <div class="set-sub">Alert when worker falls</div>
+          </div>
+          <label class="tog"><input type="checkbox" id="trig-fall" checked><span class="tog-sl"></span></label>
+        </div>
+        <div class="set-row" style="border-bottom:none">
+          <div>
+            <div class="set-label"><i class="fas fa-sos" style="color:var(--red);margin-right:6px"></i> SOS Signal</div>
+            <div class="set-sub">Alert on manual SOS press</div>
+          </div>
+          <label class="tog"><input type="checkbox" id="trig-sos" checked><span class="tog-sl"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-box">
+      <div class="set-box-hd" data-en="DEVICE INFO" data-hi="डिवाइस जानकारी">DEVICE INFO</div>
+      <div class="set-rows">
+        <div class="set-row"><div class="set-label" data-en="Unit ID" data-hi="यूनिट आईडी">Unit ID</div><div class="info-val iv-y">HELMET_01</div></div>
+        <div class="set-row"><div class="set-label" data-en="Firmware" data-hi="फर्मवेयर">Firmware</div><div class="info-val iv-g">v2.4.1</div></div>
+        <div class="set-row"><div class="set-label" data-en="Region" data-hi="क्षेत्र">Region</div><div class="info-val iv-o">ASIA-SE1</div></div>
+        <div class="set-row"><div class="set-label" data-en="Uptime" data-hi="अपटाइम">Uptime</div><div class="info-val iv-y" id="s-uptime">00:00:00</div></div>
+        <div class="set-row"><div class="set-label" data-en="Total Events" data-hi="कुल घटनाएं">Total Events</div><div class="info-val iv-y" id="s-total">0</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div class="foot-tape"></div>
+<footer>
+  <div>&copy; 2025 <span>SAFENET</span> — INDUSTRIAL WORKER SAFETY MONITOR</div>
+  <div>HELMET_01 | FIREBASE REALTIME DB</div>
+</footer>
+
+<audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/emergency_siren.ogg" preload="auto"></audio>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
