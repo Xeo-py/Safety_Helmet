@@ -1,8 +1,10 @@
 /* === STATE === */
 var S={
   lang:'en',theme:'dark',snd:true,flash:true,log:true,modal:true,voice:true,autoDismiss:30,
-  trigTemp:true,trigGas:true,trigFall:true,trigSos:true,
-  threshT:45,threshG:100,isDanger:false,modalOpen:false,modalMuted:false,
+  trigTemp:true,trigGas:true,trigFall:true,trigSos:true,trigVolt:true,trigInact:true,
+  trigExplosive:true,trigFlashFire:true,trigHelmetOff:true,trigTrapped:true,trigUnconscious:true,
+  threshT:45,threshG:900,
+  isDanger:false,modalOpen:false,modalMuted:false,
   unread:0,events:0,maxTemp:null,history:[],alerts:[],tArr:[],gArr:[],startTime:Date.now(),prev:{}
 };
 var MAX=40;
@@ -120,6 +122,13 @@ q('#trig-temp').addEventListener('change',function(){S.trigTemp=this.checked;});
 q('#trig-gas').addEventListener('change',function(){S.trigGas=this.checked;});
 q('#trig-fall').addEventListener('change',function(){S.trigFall=this.checked;});
 q('#trig-sos').addEventListener('change',function(){S.trigSos=this.checked;});
+q('#trig-volt').addEventListener('change',function(){S.trigVolt=this.checked;});
+q('#trig-inact').addEventListener('change',function(){S.trigInact=this.checked;});
+q('#trig-explosive').addEventListener('change',function(){S.trigExplosive=this.checked;});
+q('#trig-flashfire').addEventListener('change',function(){S.trigFlashFire=this.checked;});
+q('#trig-helmetoff').addEventListener('change',function(){S.trigHelmetOff=this.checked;});
+q('#trig-trapped').addEventListener('change',function(){S.trigTrapped=this.checked;});
+q('#trig-unconscious').addEventListener('change',function(){S.trigUnconscious=this.checked;});
 q('#autodismiss-range').addEventListener('input',function(){
   S.autoDismiss=parseInt(this.value);
   var lbl=S.autoDismiss===0?'OFF':S.autoDismiss+'s';
@@ -201,30 +210,42 @@ function toast(msg,cls){
 }
 
 /* =========================================================
-   RED ALERT MODAL SYSTEM
+    RED ALERT MODAL SYSTEM
    ========================================================= */
 var almAutoCt=null;
 
-/* Build list of active danger reasons based on current data + trigger settings */
-function buildReasons(T,G,fal,sos){
+function buildReasons(T,G,fal,sos,volt,inact,explosive,flashfire,helmetOff,trapped,unconscious){
   var items=[];
+  if(unconscious&&S.trigUnconscious)
+    items.push({icon:'fa-head-side-mask',main:'WORKER UNCONSCIOUS',val:'Unconscious state detected — immediate response needed at HELMET'});
   if(fal&&S.trigFall)
-    items.push({icon:'fa-person-falling',main:'FALL DETECTED',val:'Worker has fallen — immediate response needed on HELMET_01'});
+    items.push({icon:'fa-person-falling',main:'FALL DETECTED',val:'Worker has fallen — immediate response needed on HELMET'});
   if(sos&&S.trigSos)
-    items.push({icon:'fa-sos',main:'SOS ACTIVATED',val:'Manual emergency signal triggered from HELMET_01'});
+    items.push({icon:'fa-sos',main:'SOS ACTIVATED',val:'Manual emergency signal triggered from HELMET'});
+  if(trapped&&S.trigTrapped)
+    items.push({icon:'fa-person-rays',main:'WORKER TRAPPED',val:'Worker may be trapped — evacuate and assist at HELMET'});
+  if(explosive&&S.trigExplosive)
+    items.push({icon:'fa-explosion',main:'EXPLOSIVE GAS DETECTED',val:'Explosive gas concentration detected near HELMET'});
+  if(flashfire&&S.trigFlashFire)
+    items.push({icon:'fa-fire-flame-curved',main:'FLASH FIRE RISK',val:'Flash fire conditions detected near HELMET'});
+  if(volt&&S.trigVolt)
+    items.push({icon:'fa-bolt',main:'HIGH VOLTAGE DETECTED',val:'Dangerous voltage level detected on HELMET'});
+  if(helmetOff&&S.trigHelmetOff)
+    items.push({icon:'fa-hard-hat',main:'HELMET REMOVED',val:'Worker is not wearing the helmet — safety compromised'});
+  if(inact&&S.trigInact)
+    items.push({icon:'fa-person',main:'WORKER INACTIVITY',val:'No movement detected — check on worker at HELMET'});
   if(T>S.threshT&&S.trigTemp)
-    items.push({icon:'fa-temperature-high',main:'HIGH TEMPERATURE',val:T+'C recorded — Safe limit is '+S.threshT+'C on HELMET_01'});
+    items.push({icon:'fa-temperature-high',main:'HIGH TEMPERATURE',val:T+'C recorded — Safe limit is '+S.threshT+'C on HELMET'});
   if(G>S.threshG&&S.trigGas)
-    items.push({icon:'fa-smog',main:'TOXIC GAS DETECTED',val:G+' ppm detected — Safe limit is '+S.threshG+' ppm on HELMET_01'});
+    items.push({icon:'fa-smog',main:'TOXIC GAS CRITICAL',val:G+' ppm detected — Danger limit is '+S.threshG+' ppm on HELMET'});
   return items;
 }
 
-/* Show the full-screen red alert modal */
 function showAlertModal(reasons){
   if(!S.modal||!reasons.length)return;
   var modal=q('#alert-modal');
   var ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-  q('#alm-time').textContent='Triggered at '+ts+' | Unit: HELMET_01';
+  q('#alm-time').textContent='Triggered at '+ts+' | Unit: HELMET';
   q('#alm-reasons').innerHTML=reasons.map(function(r){
     return '<div class="alm-reason-item">'
       +'<i class="fas '+r.icon+'"></i>'
@@ -234,27 +255,19 @@ function showAlertModal(reasons){
       +'</div></div>';
   }).join('');
   q('#alm-auto').textContent='';
-
-  // Reset mute button state
   var muteBtn=q('#alm-mute');
   muteBtn.innerHTML='<i class="fas fa-volume-mute"></i> MUTE';
   muteBtn.style.opacity='1';
-
   modal.style.display='flex';
-  S.modalOpen=true;
-  S.modalMuted=false;
-
-  // Voice announcement via Web Speech API
+  S.modalOpen=true;S.modalMuted=false;
   if(S.voice&&'speechSynthesis' in window){
     window.speechSynthesis.cancel();
-    var announcement='Danger alert on Helmet 01. ';
-    reasons.forEach(function(r){announcement+=r.main+'. '+r.val+'. ';});
+    var announcement='Danger alert on Helmet. ';
+    reasons.forEach(function(r){announcement+=r.main+'. ';});
     var utt=new SpeechSynthesisUtterance(announcement);
     utt.rate=0.9;utt.pitch=1.1;utt.volume=1;
     window.speechSynthesis.speak(utt);
   }
-
-  // Auto-dismiss countdown
   clearInterval(almAutoCt);
   if(S.autoDismiss>0){
     var rem=S.autoDismiss;
@@ -286,12 +299,17 @@ function muteAlarm(){
 
 q('#alm-dismiss').addEventListener('click',dismissModal);
 q('#alm-mute').addEventListener('click',muteAlarm);
-/* ========================================================= */
 
 /* === HEALTH SCORE === */
-function updateHealth(T,G,fal,sos){
+function updateHealth(T,G,fal,sos,volt,inact,explosive,flashfire,helmetOff,trapped,unconscious){
   var score=100;
+  if(unconscious)score-=50;
   if(fal)score-=40;if(sos)score-=40;
+  if(trapped)score-=35;
+  if(explosive||flashfire)score-=30;
+  if(volt)score-=30;
+  if(helmetOff)score-=20;
+  if(inact)score-=20;
   if(G>S.threshG)score-=20;else if(G>S.threshG*0.7)score-=10;
   if(T>S.threshT)score-=20;else if(T>S.threshT*0.8)score-=10;
   score=Math.max(0,score);
@@ -336,7 +354,7 @@ function drawChart(){
   ctx2.clearRect(0,0,w,h);
   ctx2.strokeStyle='rgba(255,214,0,0.05)';ctx2.lineWidth=1;
   for(var g=1;g<5;g++){ctx2.beginPath();ctx2.moveTo(0,h/5*g);ctx2.lineTo(w,h/5*g);ctx2.stroke();}
-  plotLine2(S.tArr,'#FFD600',w,h,0,100);plotLine2(S.gArr,'#FF6B00',w,h,0,400);
+  plotLine2(S.tArr,'#FFD600',w,h,0,100);plotLine2(S.gArr,'#FF6B00',w,h,0,1200);
   if(S.tArr.length>1){
     var ty=h-8-((S.threshT/100)*(h-16));
     ctx2.setLineDash([6,4]);ctx2.strokeStyle='rgba(255,214,0,0.25)';ctx2.lineWidth=1;
@@ -360,70 +378,131 @@ function plotLine2(arr,color,w,h,minV,maxV){
   ctx2.fillStyle=gr;ctx2.fill();
 }
 
+/* helper: update a boolean alert card */
+function updateCard(cardId,iconId,valId,active,dangerIcon,safeIcon,dangerTxt,safeTxt,alertMsg,logMsg,alertType){
+  var card=q('#'+cardId),icon=q('#'+iconId),val=q('#'+valId);
+  if(!card)return;
+  if(active){
+    card.classList.add('danger');
+    icon.innerHTML='<i class="fas '+dangerIcon+'"></i>';icon.className='ac-icon';
+    val.textContent=dangerTxt;val.style.color='var(--red)';
+    if(S.prev[cardId]!==active){addAlert(alertType,alertMsg);addLog(alertType,logMsg,'ALERT');}
+  } else {
+    card.classList.remove('danger');
+    icon.innerHTML='<i class="fas '+safeIcon+'"></i>';icon.className='ac-icon safe-i';
+    val.textContent=safeTxt;val.style.color=alertType==='warn'?'var(--orange)':'var(--green)';
+    if(S.prev[cardId]!==active&&S.prev[cardId]!==undefined){addLog('safe',logMsg+' Cleared','OK');}
+  }
+}
+
 /* === MAIN UI UPDATE === */
 function updateUI(data){
-  var T=parseFloat(data.Temperature)||0,G=parseFloat(data.Gas_Level)||0;
-  var fal=data.Fall_Alert==1,sos=data.SOS_Alert==1;
+  // ── Firebase field mapping ──────────────────────────────
+  // Temperature        → T
+  // GasLevel_MQ135     → G   (MQ135 sensor)
+  // HeatIndex          → HI
+  // Humidity           → HUM
+  // Fall_Alert         → fal
+  // SOS_Alert          → sos
+  // HighVoltage_Alert  → volt
+  // Inactivity_Alert   → inact
+  // ExplosiveGas_Alert → explosive
+  // FlashFire_Alert    → flashfire
+  // Helmet_Off         → helmetOff
+  // Trapped_Alert      → trapped
+  // Unconscious_Alert  → unconscious
+  // ───────────────────────────────────────────────────────
+  var T          = parseFloat(data.Temperature)        || 0;
+  var G          = parseFloat(data.GasLevel_MQ135)     || 0;
+  var HI         = parseFloat(data.HeatIndex)          || 0;
+  var HUM        = parseFloat(data.Humidity)           || 0;
+  var fal        = data.Fall_Alert         == 1;
+  var sos        = data.SOS_Alert          == 1;
+  var volt       = data.HighVoltage_Alert  == 1;
+  var inact      = data.Inactivity_Alert   == 1;
+  var explosive  = data.ExplosiveGas_Alert == 1;
+  var flashfire  = data.FlashFire_Alert    == 1;
+  var helmetOff  = data.Helmet_Off         == 1;
+  var trapped    = data.Trapped_Alert      == 1;
+  var unconscious= data.Unconscious_Alert  == 1;
 
-  // Danger is only active for enabled trigger types
-  var isDanger=(fal&&S.trigFall)||(sos&&S.trigSos)||(G>S.threshG&&S.trigGas)||(T>S.threshT&&S.trigTemp);
+  var isDanger=(fal&&S.trigFall)||(sos&&S.trigSos)||(volt&&S.trigVolt)||
+                (inact&&S.trigInact)||(explosive&&S.trigExplosive)||
+                (flashfire&&S.trigFlashFire)||(helmetOff&&S.trigHelmetOff)||
+                (trapped&&S.trigTrapped)||(unconscious&&S.trigUnconscious)||
+                (G>S.threshG&&S.trigGas)||(T>S.threshT&&S.trigTemp);
 
   S.tArr.push(T);S.gArr.push(G);
   if(S.tArr.length>MAX)S.tArr.shift();if(S.gArr.length>MAX)S.gArr.shift();
   drawChart();
   if(S.maxTemp===null||T>S.maxTemp){S.maxTemp=T;q('#sys-peak').textContent=T+'C';}
 
+  // Status bar readings
   var te=q('#sb-temp'),ge=q('#sb-gas');
   te.textContent=T+'C';ge.textContent=G;
   te.className='sb-rv '+(T>S.threshT?'danger-v':T>S.threshT*0.8?'warn-v':'safe-v');
   ge.className='sb-rv '+(G>S.threshG?'danger-v':G>S.threshG*0.7?'warn-v':'safe-v');
 
   updateGauge('gauge-temp-arc','gauge-temp-val',T,100,'var(--green)','var(--orange)','var(--red)',S.threshT*0.8,S.threshT);
-  updateGauge('gauge-gas-arc','gauge-gas-val',G,400,'var(--green)','var(--orange)','var(--red)',S.threshG*0.7,S.threshG);
+  updateGauge('gauge-gas-arc','gauge-gas-val',G,1200,'var(--green)','var(--orange)','var(--red)',S.threshG*0.7,S.threshG);
 
-  var mt=q('#m-temp'),mg=q('#m-gas');
+  var mt=q('#m-temp'),mg=q('#m-gas'),mh=q('#m-heat'),mhu=q('#m-hum');
   mt.textContent=T;mt.className='metric-val '+(T>S.threshT?'rv':T>S.threshT*0.8?'ov':'gv');
   mg.textContent=G;mg.className='metric-val '+(G>S.threshG?'rv':G>S.threshG*0.7?'ov':'gv');
+  if(mh)mh.textContent=HI.toFixed(1);
+  if(mhu)mhu.textContent=HUM;
 
-  // Fall alert card
-  var fc=q('#fall-card'),fi=q('#fall-icon'),fv=q('#fall-val');
-  if(fal){
-    fc.classList.add('danger');fi.innerHTML='<i class="fas fa-person-falling"></i>';fi.className='ac-icon';
-    fv.textContent='FALL DETECTED!';fv.style.color='var(--red)';
-    if(S.prev.fal!==fal){addAlert('danger','FALL DETECTED — HELMET_01');addLog('danger','Fall Detected','ALERT');}
-  } else {
-    fc.classList.remove('danger');fi.innerHTML='<i class="fas fa-user-check"></i>';fi.className='ac-icon safe-i';
-    fv.textContent='STABLE';fv.style.color='var(--green)';
-    if(S.prev.fal!==fal&&S.prev.fal!==undefined){addLog('safe','Fall Cleared','OK');}
-  }
+  // ── Alert cards ──────────────────────────────────────────
+  updateCard('fall-card','fall-icon','fall-val',fal,
+    'fa-person-falling','fa-user-check','FALL DETECTED!','STABLE',
+    'FALL DETECTED — HELMET','Fall Detected','danger');
 
-  // SOS alert card
-  var sc=q('#sos-card'),si2=q('#sos-icon'),sv=q('#sos-val');
-  if(sos){
-    sc.classList.add('danger');si2.innerHTML='<i class="fas fa-sos"></i>';si2.className='ac-icon';
-    sv.textContent='SOS ACTIVE!';sv.style.color='var(--red)';
-    if(S.prev.sos!==sos){addAlert('danger','SOS SIGNAL — HELMET_01');addLog('danger','SOS Activated','ALERT');}
-  } else {
-    sc.classList.remove('danger');si2.innerHTML='<i class="fas fa-hand-paper"></i>';si2.className='ac-icon safe-i';
-    sv.textContent='INACTIVE';sv.style.color='var(--green)';
-    if(S.prev.sos!==sos&&S.prev.sos!==undefined){addLog('safe','SOS Cleared','OK');}
-  }
+  updateCard('sos-card','sos-icon','sos-val',sos,
+    'fa-sos','fa-hand-paper','SOS ACTIVE!','INACTIVE',
+    'SOS SIGNAL — HELMET','SOS Activated','danger');
 
-  // Temp log events
-  if(T>S.threshT&&(S.prev.T===undefined||S.prev.T<=S.threshT)){
-    addAlert('danger','High Temp: '+T+'C — HELMET_01');addLog('danger','Temp Threshold Exceeded',T+'C');
-  } else if(T>S.threshT*0.8&&!(S.prev.T>S.threshT*0.8)){
-    addAlert('warn','Temp Warning: '+T+'C — HELMET_01');addLog('warn','Temp Warning',T+'C');
-  }
+  updateCard('volt-card','volt-icon','volt-val',volt,
+    'fa-bolt','fa-bolt','HIGH VOLTAGE!','SAFE',
+    'HIGH VOLTAGE — HELMET','High Voltage','danger');
 
-  // Gas log events
+  updateCard('inact-card','inact-icon','inact-val',inact,
+    'fa-person','fa-person','INACTIVE!','ACTIVE',
+    'INACTIVITY — HELMET','Inactivity','warn');
+
+  updateCard('explosive-card','explosive-icon','explosive-val',explosive,
+    'fa-explosion','fa-wind','EXPLOSIVE GAS!','CLEAR',
+    'EXPLOSIVE GAS — HELMET','Explosive Gas','danger');
+
+  updateCard('flashfire-card','flashfire-icon','flashfire-val',flashfire,
+    'fa-fire-flame-curved','fa-fire-flame-curved','FLASH FIRE RISK!','CLEAR',
+    'FLASH FIRE RISK — HELMET','Flash Fire','danger');
+
+  updateCard('helmetoff-card','helmetoff-icon','helmetoff-val',helmetOff,
+    'fa-hard-hat','fa-hard-hat','HELMET OFF!','WEARING',
+    'HELMET REMOVED — HELMET','Helmet Off','danger');
+
+  updateCard('trapped-card','trapped-icon','trapped-val',trapped,
+    'fa-person-rays','fa-person-rays','TRAPPED!','FREE',
+    'WORKER TRAPPED — HELMET','Trapped Alert','danger');
+
+  updateCard('unconscious-card','unconscious-icon','unconscious-val',unconscious,
+    'fa-head-side-mask','fa-head-side-mask','UNCONSCIOUS!','RESPONSIVE',
+    'WORKER UNCONSCIOUS — HELMET','Unconscious Alert','danger');
+
+  // ── Gas & Temp log events ────────────────────────────────
+  // Gas: warn at 70% of 900 = 630ppm, danger at 900ppm
   if(G>S.threshG&&(S.prev.G===undefined||S.prev.G<=S.threshG)){
-    addAlert('danger','Toxic Gas: '+G+' ppm — HELMET_01');addLog('danger','Gas Threshold Exceeded',G+'ppm');
+    addAlert('danger','Toxic Gas CRITICAL: '+G+' ppm — HELMET');addLog('danger','Gas Critical (>'+S.threshG+'ppm)',G+'ppm');
   } else if(G>S.threshG*0.7&&!(S.prev.G>S.threshG*0.7)){
-    addAlert('warn','Gas Warning: '+G+' ppm — HELMET_01');addLog('warn','Gas Warning',G+'ppm');
+    addAlert('warn','Gas Warning: '+G+' ppm — HELMET');addLog('warn','Gas Warning',G+'ppm');
+  }
+  if(T>S.threshT&&(S.prev.T===undefined||S.prev.T<=S.threshT)){
+    addAlert('danger','High Temp: '+T+'C — HELMET');addLog('danger','Temp Threshold Exceeded',T+'C');
+  } else if(T>S.threshT*0.8&&!(S.prev.T>S.threshT*0.8)){
+    addAlert('warn','Temp Warning: '+T+'C — HELMET');addLog('warn','Temp Warning',T+'C');
   }
 
-  // Status banner + alarm + modal
+  // ── Status banner ────────────────────────────────────────
   var banner=q('#status-banner'),word=q('#sb-word'),sub=q('#sb-sub'),
       hex=q('#sb-hex'),hexi=q('#sb-hex-i'),pill=q('#conn-pill'),
       ptxt=q('#conn-txt'),ab=q('#alert-badge');
@@ -431,16 +510,14 @@ function updateUI(data){
   if(isDanger){
     banner.style.borderColor='var(--red)';banner.style.boxShadow='0 4px 0 var(--red),inset 0 0 60px rgba(227,0,11,0.05)';
     word.textContent='DANGER!';word.className='sb-word danger';
-    sub.textContent='Immediate action required — HELMET_01!';
+    sub.textContent='Immediate action required — HELMET!';
     hex.className='sb-hex danger-hex';hexi.className='fas fa-radiation';
     pill.className='status-pill danger';ptxt.textContent='DANGER';
     ab.className='panel-badge red';ab.textContent='ALERT';
     q('#emrg-wrap').classList.toggle('active',!!S.flash);
-
-    // New danger onset: trigger alarm + modal
     if(!S.isDanger){
       if(S.snd){var al=q('#alarm');if(al){al.currentTime=0;al.play().catch(function(){});}}
-      var reasons=buildReasons(T,G,fal,sos);
+      var reasons=buildReasons(T,G,fal,sos,volt,inact,explosive,flashfire,helmetOff,trapped,unconscious);
       if(!S.modalOpen)showAlertModal(reasons);
       S.isDanger=true;
     }
@@ -460,26 +537,32 @@ function updateUI(data){
     }
   }
 
-  updateHealth(T,G,fal,sos);
-  S.prev={T:T,G:G,fal:fal,sos:sos};
+  updateHealth(T,G,fal,sos,volt,inact,explosive,flashfire,helmetOff,trapped,unconscious);
+  // store prev state using card IDs for updateCard helper
+  S.prev={
+    T:T,G:G,
+    'fall-card':fal,'sos-card':sos,'volt-card':volt,'inact-card':inact,
+    'explosive-card':explosive,'flashfire-card':flashfire,'helmetoff-card':helmetOff,
+    'trapped-card':trapped,'unconscious-card':unconscious
+  };
 }
 
 /* === FIREBASE === */
 window.addEventListener('load',function(){
   initChart();
   var fbConfig={
-    apiKey:"YOUR_API_KEY",
-    authDomain:"YOUR_PROJECT.firebaseapp.com",
-    databaseURL:"https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-    projectId:"YOUR_PROJECT",
-    storageBucket:"YOUR_PROJECT.appspot.com",
-    messagingSenderId:"YOUR_SENDER_ID",
-    appId:"YOUR_APP_ID"
+    apiKey:"AIzaSyBSNf-7VhfWvo2AyExJbl8_Yk55kNDKZGc",
+    authDomain:"smart-helmet-hackathon.firebaseapp.com",
+    databaseURL:"https://smart-helmet-hackathon-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"smart-helmet-hackathon",
+    storageBucket:"smart-helmet-hackathon.firebasestorage.app",
+    messagingSenderId:"292986973487",
+    appId:"1:292986973487:web:441a114cdc9deaa02285da"
   };
   try{
     firebase.initializeApp(fbConfig);
     var db=firebase.database();
-    db.ref('/').on('value',function(snap){
+    db.ref('/Helmet').on('value',function(snap){
       var d=snap.val();if(d)updateUI(d);
     },function(err){console.error('Firebase error:',err);toast('DB ERROR','r');});
   } catch(e){console.error('Firebase init failed:',e);toast('FIREBASE CONFIG MISSING','o');}
