@@ -12,6 +12,108 @@ function q(s){return document.querySelector(s)}
 function qa(s){return document.querySelectorAll(s)}
 function pad(n){return n<10?'0'+n:''+n}
 
+/* === TRANSLATIONS === */
+var LANG = {
+  en: {
+    allClear:'ALL CLEAR', allClearSub:'All safety parameters within limits',
+    danger:'DANGER!', dangerSub:'Immediate action required — HELMET!',
+    connClear:'ALL CLEAR', connDanger:'DANGER',
+    fallName:'FALL DETECTION', fallSafe:'STABLE', fallDanger:'FALL DETECTED!',
+    sosName:'SOS SIGNAL', sosSafe:'INACTIVE', sosDanger:'SOS ACTIVE!',
+    unconsciousName:'CONSCIOUSNESS', unconsciousSafe:'RESPONSIVE', unconsciousDanger:'UNCONSCIOUS!',
+    trappedName:'TRAPPED', trappedSafe:'FREE', trappedDanger:'TRAPPED!',
+    explosiveName:'EXPLOSIVE GAS', explosiveSafe:'CLEAR', explosiveDanger:'EXPLOSIVE GAS!',
+    flashfireName:'FLASH FIRE', flashfireSafe:'CLEAR', flashfireDanger:'FLASH FIRE RISK!',
+    voltName:'HIGH VOLTAGE', voltSafe:'SAFE', voltDanger:'HIGH VOLTAGE!',
+    helmetoffName:'HELMET STATUS', helmetoffSafe:'WEARING', helmetoffDanger:'HELMET OFF!',
+    inactName:'INACTIVITY', inactSafe:'ACTIVE', inactDanger:'INACTIVE!',
+    panelAlerts:'SAFETY ALERTS', panelGauges:'LIVE GAUGES',
+    panelSystem:'SYSTEM STATUS', panelChart:'LIVE SENSOR FEED',
+    badgeLive:'LIVE', badgeAlert:'ALERT', badgeRealtime:'REAL-TIME',
+    histTitle:'EVENT LOG', filterAll:'ALL', filterDanger:'DANGER', filterWarn:'WARN', filterSafe:'SAFE',
+    searchPlaceholder:'Search events...',
+    settingsTitle:'SETTINGS',
+    appSection:'APPEARANCE', threshSection:'ALERT THRESHOLDS', notifSection:'NOTIFICATIONS',
+    anomalySection:'ANOMALY ALERT TRIGGERS', deviceSection:'DEVICE INFO',
+    themeLabel:'Display Theme', themeSub:'Switch light/dark mode',
+    langLabel:'Language', langSub:'Interface language',
+    darkBtn:'Dark', lightBtn:'Light',
+    tempThreshLabel:'Temp Threshold (°C)', gasThreshLabel:'Gas Threshold (ppm)',
+    soundLabel:'Alarm Sound', soundSub:'Siren on danger events',
+    flashLabel:'Caution Border Flash', flashSub:'Hazard tape on alert',
+    modalLabel:'Red Alert Modal', modalSub:'Full-screen popup on danger',
+    voiceLabel:'Voice Announcement', voiceSub:'Speak the alert reason aloud',
+    autoDismissLabel:'Auto-Dismiss Timer',
+    logLabel:'Log All Events', logSub:'Record state changes',
+    sysFirebase:'FIREBASE', sysUnit:'UNIT ID', sysGasDanger:'GAS DANGER',
+    sysPeakTemp:'PEAK TEMP', sysTotalEvents:'TOTAL EVENTS', sysUptime:'UPTIME',
+    exportCSV:'EXPORT CSV', exportBtn:'EXPORT CSV', clearBtn:'CLEAR',
+    noAlerts:'NO ALERTS RECORDED', noEvents:'NO EVENTS RECORDED YET',
+    trigTempLabel:'High Temperature', trigTempSub:'Alert when temp exceeds threshold',
+    trigGasLabel:'Toxic Gas (>900 ppm)', trigGasSub:'Alert when MQ135 exceeds 900 ppm',
+    trigFallLabel:'Fall Detection', trigFallSub:'Alert when worker falls',
+    trigSosLabel:'SOS Signal', trigSosSub:'Alert on manual SOS press',
+    trigVoltLabel:'High Voltage', trigVoltSub:'Alert on high voltage detection',
+    trigInactLabel:'Inactivity', trigInactSub:'Alert on worker inactivity',
+    trigExplosiveLabel:'Explosive Gas', trigExplosiveSub:'Alert on explosive gas detection',
+    trigFlashfireLabel:'Flash Fire', trigFlashfireSub:'Alert on flash fire risk',
+    trigHelmetoffLabel:'Helmet Removed', trigHelmetoffSub:'Alert when helmet is taken off',
+    trigTrappedLabel:'Worker Trapped', trigTrappedSub:'Alert when worker is trapped',
+    trigUnconsciousLabel:'Unconscious Worker', trigUnconsciousSub:'Alert when unconscious state is detected',
+    unitIdVal:'HELMET', gasSensorVal:'MQ135', firmwareVal:'v2.4.1', regionVal:'ASIA-SE1',
+    uptimeLabel:'Uptime', totalEventsLabel:'Total Events'
+  },
+  hi: {
+    allClear:'सब सुरक्षित', allClearSub:'सभी सुरक्षा मानक सीमा में हैं',
+    danger:'खतरा!', dangerSub:'तुरंत कार्रवाई ज़रूरी — हेलमेट!',
+    connClear:'सुरक्षित', connDanger:'खतरा',
+    fallName:'गिरावट पहचान', fallSafe:'स्थिर', fallDanger:'गिरावट!',
+    sosName:'SOS संकेत', sosSafe:'निष्क्रिय', sosDanger:'SOS सक्रिय!',
+    unconsciousName:'चेतना', unconsciousSafe:'सचेत', unconsciousDanger:'बेहोश!',
+    trappedName:'फँसे हुए', trappedSafe:'मुक्त', trappedDanger:'फँसे हुए!',
+    explosiveName:'विस्फोटक गैस', explosiveSafe:'सुरक्षित', explosiveDanger:'विस्फोटक गैस!',
+    flashfireName:'फ्लैश आग', flashfireSafe:'सुरक्षित', flashfireDanger:'आग का खतरा!',
+    voltName:'उच्च वोल्टेज', voltSafe:'सुरक्षित', voltDanger:'उच्च वोल्टेज!',
+    helmetoffName:'हेलमेट स्थिति', helmetoffSafe:'पहने हुए', helmetoffDanger:'हेलमेट उतरा!',
+    inactName:'निष्क्रियता', inactSafe:'सक्रिय', inactDanger:'निष्क्रिय!',
+    panelAlerts:'सुरक्षा अलर्ट', panelGauges:'लाइव गेज',
+    panelSystem:'सिस्टम स्थिति', panelChart:'लाइव सेंसर फ़ीड',
+    badgeLive:'लाइव', badgeAlert:'अलर्ट', badgeRealtime:'रियल-टाइम',
+    histTitle:'घटना लॉग', filterAll:'सभी', filterDanger:'खतरा', filterWarn:'चेतावनी', filterSafe:'सुरक्षित',
+    searchPlaceholder:'खोजें...',
+    settingsTitle:'सेटिंग्स',
+    appSection:'दिखावट', threshSection:'अलर्ट सीमाएँ', notifSection:'सूचनाएँ',
+    anomalySection:'अलर्ट ट्रिगर', deviceSection:'डिवाइस जानकारी',
+    themeLabel:'डिस्प्ले थीम', themeSub:'लाइट/डार्क मोड बदलें',
+    langLabel:'भाषा', langSub:'इंटरफ़ेस भाषा',
+    darkBtn:'डार्क', lightBtn:'लाइट',
+    tempThreshLabel:'तापमान सीमा (°C)', gasThreshLabel:'गैस सीमा (ppm)',
+    soundLabel:'अलार्म ध्वनि', soundSub:'खतरे पर सायरन बजाएं',
+    flashLabel:'सावधानी बॉर्डर', flashSub:'अलर्ट पर हैजार्ड टेप',
+    modalLabel:'लाल अलर्ट पॉपअप', modalSub:'खतरे पर फुल-स्क्रीन पॉपअप',
+    voiceLabel:'आवाज़ घोषणा', voiceSub:'अलर्ट कारण ज़ोर से बोलें',
+    autoDismissLabel:'स्वतः बंद टाइमर',
+    logLabel:'घटनाएँ लॉग करें', logSub:'स्थिति परिवर्तन रिकॉर्ड करें',
+    sysFirebase:'फायरबेस', sysUnit:'यूनिट आईडी', sysGasDanger:'गैस खतरा',
+    sysPeakTemp:'उच्चतम तापमान', sysTotalEvents:'कुल घटनाएँ', sysUptime:'अपटाइम',
+    exportCSV:'CSV निर्यात', exportBtn:'CSV निर्यात', clearBtn:'साफ करें',
+    noAlerts:'कोई अलर्ट नहीं', noEvents:'अभी तक कोई घटना नहीं',
+    trigTempLabel:'उच्च तापमान', trigTempSub:'सीमा पार होने पर अलर्ट',
+    trigGasLabel:'जहरीली गैस (>900 ppm)', trigGasSub:'MQ135 900 ppm पार करने पर',
+    trigFallLabel:'गिरावट पहचान', trigFallSub:'कर्मचारी के गिरने पर अलर्ट',
+    trigSosLabel:'SOS संकेत', trigSosSub:'मैनुअल SOS दबाने पर',
+    trigVoltLabel:'उच्च वोल्टेज', trigVoltSub:'उच्च वोल्टेज पहचान पर',
+    trigInactLabel:'निष्क्रियता', trigInactSub:'कर्मचारी निष्क्रिय होने पर',
+    trigExplosiveLabel:'विस्फोटक गैस', trigExplosiveSub:'विस्फोटक गैस पहचान पर',
+    trigFlashfireLabel:'फ्लैश आग', trigFlashfireSub:'फ्लैश आग के खतरे पर',
+    trigHelmetoffLabel:'हेलमेट उतारा', trigHelmetoffSub:'हेलमेट उतारने पर अलर्ट',
+    trigTrappedLabel:'कर्मचारी फँसा', trigTrappedSub:'फँसने पर अलर्ट',
+    trigUnconsciousLabel:'बेहोश कर्मचारी', trigUnconsciousSub:'बेहोशी पहचान पर अलर्ट',
+    unitIdVal:'हेलमेट', gasSensorVal:'MQ135', firmwareVal:'v2.4.1', regionVal:'ASIA-SE1',
+    uptimeLabel:'अपटाइम', totalEventsLabel:'कुल घटनाएँ'
+  }
+};
+
 /* === LOADER === */
 (function(){
   var el=q('#loader'),ml=q('#load-msg');
@@ -44,322 +146,164 @@ function tick(){
 tick();setInterval(tick,1000);
 
 /* === LANGUAGE === */
+function setLang(lang){
+  S.lang=lang;
+  var T=LANG[lang]||LANG['en'];
 
-/* === TRANSLATIONS === */
-var TRANSLATIONS = {
-  en: {
-    // Nav
-    'nav-dashboard': 'Dashboard',
-    'nav-history': 'History',
-    'nav-settings': 'Settings',
-    // Status banner
-    'all-clear': 'ALL CLEAR',
-    'all-clear-sub': 'All safety parameters within limits',
-    'danger': 'DANGER!',
-    'danger-sub': 'Immediate action required — HELMET!',
-    // Alert card names
-    'fall-detection': 'FALL DETECTION',
-    'sos-signal': 'SOS SIGNAL',
-    'consciousness': 'CONSCIOUSNESS',
-    'trapped': 'TRAPPED',
-    'explosive-gas': 'EXPLOSIVE GAS',
-    'flash-fire': 'FLASH FIRE',
-    'high-voltage': 'HIGH VOLTAGE',
-    'helmet-status': 'HELMET STATUS',
-    'inactivity': 'INACTIVITY',
-    // Alert card values (safe)
-    'stable': 'STABLE',
-    'inactive': 'INACTIVE',
-    'responsive': 'RESPONSIVE',
-    'free': 'FREE',
-    'clear': 'CLEAR',
-    'safe': 'SAFE',
-    'wearing': 'WEARING',
-    'active': 'ACTIVE',
-    // Panel titles
-    'safety-alerts': 'SAFETY ALERTS',
-    'live-gauges': 'LIVE GAUGES',
-    'system-status': 'SYSTEM STATUS',
-    'live-sensor-feed': 'LIVE SENSOR FEED',
-    // Settings
-    'settings-title': 'SETTINGS',
-    'appearance': 'APPEARANCE',
-    'display-theme': 'Display Theme',
-    'switch-theme': 'Switch light/dark mode',
-    'language': 'Language',
-    'interface-language': 'Interface language',
-    'alert-thresholds': 'ALERT THRESHOLDS',
-    'temp-threshold': 'Temp Threshold (°C)',
-    'gas-threshold': 'Gas Threshold (ppm)',
-    'notifications': 'NOTIFICATIONS',
-    'alarm-sound': 'Alarm Sound',
-    'siren-desc': 'Siren on danger events',
-    'caution-border': 'Caution Border Flash',
-    'hazard-tape': 'Hazard tape on alert',
-    'red-alert-modal': 'Red Alert Modal',
-    'popup-desc': 'Full-screen popup on danger',
-    'voice-announcement': 'Voice Announcement',
-    'voice-desc': 'Speak the alert reason aloud',
-    'auto-dismiss': 'Auto-Dismiss Timer',
-    'log-events': 'Log All Events',
-    'log-desc': 'Record state changes',
-    'history-title': 'EVENT LOG',
-    'filter-all': 'ALL',
-    'filter-danger': 'DANGER',
-    'filter-warn': 'WARN',
-    'filter-safe': 'SAFE',
-    'search-placeholder': 'Search events...',
-    'export-csv': 'EXPORT CSV',
-    // System rows
-    'firebase': 'FIREBASE',
-    'unit-id': 'UNIT ID',
-    'gas-danger': 'GAS DANGER',
-    'peak-temp': 'PEAK TEMP',
-    'total-events': 'TOTAL EVENTS',
-    'uptime': 'UPTIME',
-  },
-  hi: {
-    // Nav
-    'nav-dashboard': 'डैशबोर्ड',
-    'nav-history': 'इतिहास',
-    'nav-settings': 'सेटिंग्स',
-    // Status banner
-    'all-clear': 'सब सुरक्षित',
-    'all-clear-sub': 'सभी सुरक्षा मानक सीमा में हैं',
-    'danger': 'खतरा!',
-    'danger-sub': 'तुरंत कार्रवाई आवश्यक — हेलमेट!',
-    // Alert card names
-    'fall-detection': 'गिरावट पहचान',
-    'sos-signal': 'SOS संकेत',
-    'consciousness': 'चेतना',
-    'trapped': 'फँसे हुए',
-    'explosive-gas': 'विस्फोटक गैस',
-    'flash-fire': 'फ्लैश आग',
-    'high-voltage': 'उच्च वोल्टेज',
-    'helmet-status': 'हेलमेट स्थिति',
-    'inactivity': 'निष्क्रियता',
-    // Alert card values (safe)
-    'stable': 'स्थिर',
-    'inactive': 'निष्क्रिय',
-    'responsive': 'सचेत',
-    'free': 'मुक्त',
-    'clear': 'सुरक्षित',
-    'safe': 'सुरक्षित',
-    'wearing': 'पहने हुए',
-    'active': 'सक्रिय',
-    // Panel titles
-    'safety-alerts': 'सुरक्षा अलर्ट',
-    'live-gauges': 'लाइव गेज',
-    'system-status': 'सिस्टम स्थिति',
-    'live-sensor-feed': 'लाइव सेंसर फ़ीड',
-    // Settings
-    'settings-title': 'सेटिंग्स',
-    'appearance': 'दिखावट',
-    'display-theme': 'डिस्प्ले थीम',
-    'switch-theme': 'लाइट/डार्क मोड बदलें',
-    'language': 'भाषा',
-    'interface-language': 'इंटरफ़ेस भाषा',
-    'alert-thresholds': 'अलर्ट सीमाएँ',
-    'temp-threshold': 'तापमान सीमा (°C)',
-    'gas-threshold': 'गैस सीमा (ppm)',
-    'notifications': 'सूचनाएँ',
-    'alarm-sound': 'अलार्म ध्वनि',
-    'siren-desc': 'खतरे पर सायरन बजाएं',
-    'caution-border': 'सावधानी बॉर्डर फ्लैश',
-    'hazard-tape': 'अलर्ट पर हैजार्ड टेप',
-    'red-alert-modal': 'लाल अलर्ट पॉपअप',
-    'popup-desc': 'खतरे पर फुल-स्क्रीन पॉपअप',
-    'voice-announcement': 'आवाज़ घोषणा',
-    'voice-desc': 'अलर्ट कारण ज़ोर से बोलें',
-    'auto-dismiss': 'स्वतः बंद टाइमर',
-    'log-events': 'सभी घटनाएँ लॉग करें',
-    'log-desc': 'स्थिति परिवर्तन रिकॉर्ड करें',
-    'history-title': 'घटना लॉग',
-    'filter-all': 'सभी',
-    'filter-danger': 'खतरा',
-    'filter-warn': 'चेतावनी',
-    'filter-safe': 'सुरक्षित',
-    'search-placeholder': 'खोजें...',
-    'export-csv': 'CSV निर्यात',
-    // System rows
-    'firebase': 'फायरबेस',
-    'unit-id': 'यूनिट आईडी',
-    'gas-danger': 'गैस खतरा',
-    'peak-temp': 'उच्चतम तापमान',
-    'total-events': 'कुल घटनाएँ',
-    'uptime': 'अपटाइम',
+  /* Nav tabs */
+  qa('.n-tab').forEach(function(b){
+    var pg=b.getAttribute('data-page');
+    if(pg==='dashboard')b.textContent=T.panelAlerts==='SAFETY ALERTS'?'Dashboard':'डैशबोर्ड';
+    if(pg==='history')b.textContent=lang==='hi'?'इतिहास':'History';
+    if(pg==='settings')b.textContent=lang==='hi'?'सेटिंग्स':'Settings';
+  });
+  qa('.drawer-btn[data-page]').forEach(function(b){
+    var pg=b.getAttribute('data-page');
+    var ic=b.querySelector('i')?b.querySelector('i').outerHTML:'';
+    if(pg==='dashboard')b.innerHTML=ic+(lang==='hi'?'डैशबोर्ड':'Dashboard');
+    if(pg==='history')b.innerHTML=ic+(lang==='hi'?'इतिहास':'History');
+    if(pg==='settings')b.innerHTML=ic+(lang==='hi'?'सेटिंग्स':'Settings');
+  });
+
+  /* Status banner - only update text if not in danger so we don't override live state */
+  if(!S.isDanger){
+    var wEl=q('#sb-word'),sEl=q('#sb-sub');
+    if(wEl)wEl.textContent=T.allClear;
+    if(sEl)sEl.textContent=T.allClearSub;
   }
-};
+  var ptxt=q('#conn-txt');
+  if(ptxt)ptxt.textContent=S.isDanger?T.connDanger:T.connClear;
 
-/* === LANGUAGE APPLY === */
-function setLang(lang) {
-  S.lang = lang;
-  var T = TRANSLATIONS[lang] || TRANSLATIONS['en'];
-
-  // Nav tabs
-  var tabs = document.querySelectorAll('.n-tab');
-  tabs.forEach(function(tab) {
-    var pg = tab.getAttribute('data-page');
-    if (pg === 'dashboard') tab.textContent = T['nav-dashboard'];
-    else if (pg === 'history') tab.textContent = T['nav-history'];
-    else if (pg === 'settings') tab.textContent = T['nav-settings'];
-  });
-
-  // Drawer nav buttons
-  document.querySelectorAll('.drawer-btn[data-page]').forEach(function(btn) {
-    var pg = btn.getAttribute('data-page');
-    var icon = btn.querySelector('i');
-    var iconHtml = icon ? icon.outerHTML : '';
-    if (pg === 'dashboard') btn.innerHTML = iconHtml + T['nav-dashboard'];
-    else if (pg === 'history') btn.innerHTML = iconHtml + T['nav-history'];
-    else if (pg === 'settings') btn.innerHTML = iconHtml + T['nav-settings'];
-  });
-
-  // Status banner (only update if currently in all-clear state)
-  var wordEl = document.querySelector('#sb-word');
-  var subEl = document.querySelector('#sb-sub');
-  if (wordEl && !S.isDanger) {
-    wordEl.textContent = T['all-clear'];
-    subEl.textContent = T['all-clear-sub'];
-  }
-
-  // Alert card names
-  var cardNames = {
-    'fall-card': 'fall-detection',
-    'sos-card': 'sos-signal',
-    'unconscious-card': 'consciousness',
-    'trapped-card': 'trapped',
-    'explosive-card': 'explosive-gas',
-    'flashfire-card': 'flash-fire',
-    'volt-card': 'high-voltage',
-    'helmetoff-card': 'helmet-status',
-    'inact-card': 'inactivity'
-  };
-  Object.keys(cardNames).forEach(function(cardId) {
-    var card = document.querySelector('#' + cardId);
-    if (!card) return;
-    var nameEl = card.querySelector('.ac-name');
-    if (nameEl) nameEl.textContent = T[cardNames[cardId]];
-  });
-
-  // Alert card safe values (only update if not in danger)
-  var safeVals = {
-    'fall-val': 'stable',
-    'sos-val': 'inactive',
-    'unconscious-val': 'responsive',
-    'trapped-val': 'free',
-    'explosive-val': 'clear',
-    'flashfire-val': 'clear',
-    'volt-val': 'safe',
-    'helmetoff-val': 'wearing',
-    'inact-val': 'active'
-  };
-  Object.keys(safeVals).forEach(function(valId) {
-    var el = document.querySelector('#' + valId);
-    if (el && el.style.color.indexOf('0, 166, 81') !== -1) {
-      el.textContent = T[safeVals[valId]].toUpperCase();
+  /* Alert card names & safe values */
+  var cards=[
+    {card:'fall-card',nameK:'fallName',safeK:'fallSafe',dangerK:'fallDanger',valId:'fall-val'},
+    {card:'sos-card',nameK:'sosName',safeK:'sosSafe',dangerK:'sosDanger',valId:'sos-val'},
+    {card:'unconscious-card',nameK:'unconsciousName',safeK:'unconsciousSafe',dangerK:'unconsciousDanger',valId:'unconscious-val'},
+    {card:'trapped-card',nameK:'trappedName',safeK:'trappedSafe',dangerK:'trappedDanger',valId:'trapped-val'},
+    {card:'explosive-card',nameK:'explosiveName',safeK:'explosiveSafe',dangerK:'explosiveDanger',valId:'explosive-val'},
+    {card:'flashfire-card',nameK:'flashfireName',safeK:'flashfireSafe',dangerK:'flashfireDanger',valId:'flashfire-val'},
+    {card:'volt-card',nameK:'voltName',safeK:'voltSafe',dangerK:'voltDanger',valId:'volt-val'},
+    {card:'helmetoff-card',nameK:'helmetoffName',safeK:'helmetoffSafe',dangerK:'helmetoffDanger',valId:'helmetoff-val'},
+    {card:'inact-card',nameK:'inactName',safeK:'inactSafe',dangerK:'inactDanger',valId:'inact-val'}
+  ];
+  cards.forEach(function(c){
+    var card=q('#'+c.card);if(!card)return;
+    var nm=card.querySelector('.ac-name');
+    if(nm)nm.textContent=T[c.nameK];
+    var vl=q('#'+c.valId);
+    if(vl){
+      var isDangerCard=card.classList.contains('danger');
+      vl.textContent=isDangerCard?T[c.dangerK]:T[c.safeK];
     }
   });
 
-  // Panel titles
-  var panelTitles = document.querySelectorAll('.panel-title');
-  panelTitles.forEach(function(pt) {
-    var txt = pt.textContent.trim();
-    if (txt === 'SAFETY ALERTS' || txt === 'सुरक्षा अलर्ट') pt.textContent = T['safety-alerts'];
-    else if (txt === 'LIVE GAUGES' || txt === 'लाइव गेज') pt.textContent = T['live-gauges'];
-    else if (txt === 'SYSTEM STATUS' || txt === 'सिस्टम स्थिति') pt.textContent = T['system-status'];
-    else if (txt === 'LIVE SENSOR FEED' || txt === 'लाइव सेंसर फ़ीड') pt.textContent = T['live-sensor-feed'];
+  /* Panel titles */
+  var ptEl=q('#page-dashboard .panel:nth-child(1) .panel-title');
+  qa('.panel-title').forEach(function(pt){
+    var t=pt.textContent.trim().toUpperCase();
+    if(t==='SAFETY ALERTS'||t==='सुरक्षा अलर्ट')pt.textContent=T.panelAlerts;
+    else if(t==='LIVE GAUGES'||t==='लाइव गेज')pt.textContent=T.panelGauges;
+    else if(t==='SYSTEM STATUS'||t==='सिस्टम स्थिति')pt.textContent=T.panelSystem;
+    else if(t==='LIVE SENSOR FEED'||t==='लाइव सेंसर फ़ीड')pt.textContent=T.panelChart;
   });
 
-  // History page title & filters
-  var histTitle = document.querySelector('#page-history .pg-title');
-  if (histTitle) histTitle.textContent = T['history-title'];
-  document.querySelectorAll('.f-btn').forEach(function(btn) {
-    var f = btn.getAttribute('data-f');
-    if (f === 'all') btn.textContent = T['filter-all'];
-    else if (f === 'danger') btn.textContent = T['filter-danger'];
-    else if (f === 'warn') btn.textContent = T['filter-warn'];
-    else if (f === 'safe') btn.textContent = T['filter-safe'];
+  /* Panel badges */
+  var ab=q('#alert-badge');
+  if(ab)ab.textContent=S.isDanger?T.badgeAlert:T.badgeLive;
+
+  /* History page */
+  var ht=q('#page-history .pg-title');if(ht)ht.textContent=T.histTitle;
+  qa('.f-btn').forEach(function(b){
+    var f=b.getAttribute('data-f');
+    if(f==='all')b.textContent=T.filterAll;
+    else if(f==='danger')b.textContent=T.filterDanger;
+    else if(f==='warn')b.textContent=T.filterWarn;
+    else if(f==='safe')b.textContent=T.filterSafe;
+  });
+  var si=q('#log-search');if(si)si.placeholder=T.searchPlaceholder;
+  var eb=q('#export-csv-btn');
+  if(eb){var ei=eb.querySelector('i');eb.innerHTML=(ei?ei.outerHTML:'')+T.exportBtn;}
+
+  /* Settings page title */
+  var spt=q('#page-settings .pg-title');if(spt)spt.textContent=T.settingsTitle;
+
+  /* Settings box headers */
+  qa('.set-box-hd').forEach(function(hd){
+    var t=hd.textContent.trim();
+    if(['APPEARANCE','दिखावट'].includes(t))hd.textContent=T.appSection;
+    else if(['ALERT THRESHOLDS','अलर्ट सीमाएँ'].includes(t))hd.textContent=T.threshSection;
+    else if(['NOTIFICATIONS','सूचनाएँ'].includes(t))hd.textContent=T.notifSection;
+    else if(['ANOMALY ALERT TRIGGERS','अलर्ट ट्रिगर'].includes(t))hd.textContent=T.anomalySection;
+    else if(['DEVICE INFO','डिवाइस जानकारी'].includes(t))hd.textContent=T.deviceSection;
   });
 
-  // Search placeholder
-  var si = document.querySelector('#log-search');
-  if (si) si.placeholder = T['search-placeholder'];
-
-  // Export button
-  var exportBtn = document.querySelector('#export-csv-btn');
-  if (exportBtn) {
-    var icon = exportBtn.querySelector('i');
-    exportBtn.innerHTML = (icon ? icon.outerHTML : '') + T['export-csv'];
-  }
-
-  // Settings page title
-  var setTitle = document.querySelector('#page-settings .pg-title');
-  if (setTitle) setTitle.textContent = T['settings-title'];
-
-  // Settings box headers
-  document.querySelectorAll('.set-box-hd').forEach(function(hd) {
-    var txt = hd.textContent.trim();
-    if (txt === 'APPEARANCE' || txt === 'दिखावट') hd.textContent = T['appearance'];
-    else if (txt === 'ALERT THRESHOLDS' || txt === 'अलर्ट सीमाएँ') hd.textContent = T['alert-thresholds'];
-    else if (txt === 'NOTIFICATIONS' || txt === 'सूचनाएँ') hd.textContent = T['notifications'];
-    else if (txt === 'DEVICE INFO' || txt === 'डिवाइस जानकारी') hd.textContent = lang === 'hi' ? 'डिवाइस जानकारी' : 'DEVICE INFO';
-    else if (txt === 'ANOMALY ALERT TRIGGERS' || txt === 'अलर्ट ट्रिगर') hd.textContent = lang === 'hi' ? 'अलर्ट ट्रिगर' : 'ANOMALY ALERT TRIGGERS';
+  /* Settings rows - theme */
+  var setRows=qa('.set-row');
+  setRows.forEach(function(row){
+    var lbl=row.querySelector('.set-label');
+    var sub=row.querySelector('.set-sub');
+    if(!lbl)return;
+    var lt=lbl.textContent.trim();
+    /* appearance */
+    if(['Display Theme','डिस्प्ले थीम'].includes(lt)){lbl.textContent=T.themeLabel;if(sub)sub.textContent=T.themeSub;}
+    else if(['Language','भाषा'].includes(lt)){lbl.textContent=T.langLabel;if(sub)sub.textContent=T.langSub;}
+    /* thresholds */
+    else if(lt.indexOf('Temp Threshold')!==-1||lt.indexOf('तापमान सीमा')!==-1){lbl.textContent=T.tempThreshLabel;}
+    else if(lt.indexOf('Gas Threshold')!==-1||lt.indexOf('गैस सीमा')!==-1){lbl.textContent=T.gasThreshLabel;}
+    /* notifications */
+    else if(['Alarm Sound','अलार्म ध्वनि'].includes(lt)){lbl.textContent=T.soundLabel;if(sub)sub.textContent=T.soundSub;}
+    else if(['Caution Border Flash','सावधानी बॉर्डर'].includes(lt)){lbl.textContent=T.flashLabel;if(sub)sub.textContent=T.flashSub;}
+    else if(['Red Alert Modal','लाल अलर्ट पॉपअप'].includes(lt)){lbl.textContent=T.modalLabel;if(sub)sub.textContent=T.modalSub;}
+    else if(['Voice Announcement','आवाज़ घोषणा'].includes(lt)){lbl.textContent=T.voiceLabel;if(sub)sub.textContent=T.voiceSub;}
+    else if(['Auto-Dismiss Timer','स्वतः बंद टाइमर'].includes(lt)){lbl.textContent=T.autoDismissLabel;}
+    else if(['Log All Events','घटनाएँ लॉग करें'].includes(lt)){lbl.textContent=T.logLabel;if(sub)sub.textContent=T.logSub;}
+    /* anomaly triggers */
+    else if(['High Temperature','उच्च तापमान'].includes(lt)){lbl.innerHTML='<i class="fas fa-temperature-high" style="color:var(--orange);margin-right:6px"></i>'+T.trigTempLabel;if(sub)sub.textContent=T.trigTempSub;}
+    else if(lt.indexOf('Toxic Gas')!==-1||lt.indexOf('जहरीली गैस')!==-1){lbl.innerHTML='<i class="fas fa-smog" style="color:var(--orange);margin-right:6px"></i>'+T.trigGasLabel;if(sub)sub.textContent=T.trigGasSub;}
+    else if(['Fall Detection','गिरावट पहचान'].includes(lt)){lbl.innerHTML='<i class="fas fa-person-falling" style="color:var(--red);margin-right:6px"></i>'+T.trigFallLabel;if(sub)sub.textContent=T.trigFallSub;}
+    else if(['SOS Signal','SOS संकेत'].includes(lt)){lbl.innerHTML='<i class="fas fa-sos" style="color:var(--red);margin-right:6px"></i>'+T.trigSosLabel;if(sub)sub.textContent=T.trigSosSub;}
+    else if(['High Voltage','उच्च वोल्टेज'].includes(lt)){lbl.innerHTML='<i class="fas fa-bolt" style="color:var(--red);margin-right:6px"></i>'+T.trigVoltLabel;if(sub)sub.textContent=T.trigVoltSub;}
+    else if(['Inactivity','निष्क्रियता'].includes(lt)){lbl.innerHTML='<i class="fas fa-person" style="color:var(--orange);margin-right:6px"></i>'+T.trigInactLabel;if(sub)sub.textContent=T.trigInactSub;}
+    else if(['Explosive Gas','विस्फोटक गैस'].includes(lt)){lbl.innerHTML='<i class="fas fa-explosion" style="color:var(--red);margin-right:6px"></i>'+T.trigExplosiveLabel;if(sub)sub.textContent=T.trigExplosiveSub;}
+    else if(['Flash Fire','फ्लैश आग'].includes(lt)){lbl.innerHTML='<i class="fas fa-fire-flame-curved" style="color:var(--red);margin-right:6px"></i>'+T.trigFlashfireLabel;if(sub)sub.textContent=T.trigFlashfireSub;}
+    else if(['Helmet Removed','हेलमेट उतारा'].includes(lt)){lbl.innerHTML='<i class="fas fa-hard-hat" style="color:var(--orange);margin-right:6px"></i>'+T.trigHelmetoffLabel;if(sub)sub.textContent=T.trigHelmetoffSub;}
+    else if(['Worker Trapped','कर्मचारी फँसा'].includes(lt)){lbl.innerHTML='<i class="fas fa-person-rays" style="color:var(--red);margin-right:6px"></i>'+T.trigTrappedLabel;if(sub)sub.textContent=T.trigTrappedSub;}
+    else if(['Unconscious Worker','बेहोश कर्मचारी'].includes(lt)){lbl.innerHTML='<i class="fas fa-head-side-mask" style="color:var(--red);margin-right:6px"></i>'+T.trigUnconsciousLabel;if(sub)sub.textContent=T.trigUnconsciousSub;}
+    /* device info */
+    else if(['Uptime','अपटाइम'].includes(lt)){lbl.textContent=T.uptimeLabel;}
+    else if(['Total Events','कुल घटनाएँ'].includes(lt)){lbl.textContent=T.totalEventsLabel;}
   });
 
-  // Settings labels
-  var settingsMap = [
-    ['Display Theme', 'display-theme'], ['Switch light/dark mode', 'switch-theme'],
-    ['Language', 'language'], ['Interface language', 'interface-language'],
-    ['Temp Threshold (°C)', 'temp-threshold'], ['Gas Threshold (ppm)', 'gas-threshold'],
-    ['Alarm Sound', 'alarm-sound'], ['Siren on danger events', 'siren-desc'],
-    ['Caution Border Flash', 'caution-border'], ['Hazard tape on alert', 'hazard-tape'],
-    ['Red Alert Modal', 'red-alert-modal'], ['Full-screen popup on danger', 'popup-desc'],
-    ['Voice Announcement', 'voice-announcement'], ['Speak the alert reason aloud', 'voice-desc'],
-    ['Auto-Dismiss Timer', 'auto-dismiss'],
-    ['Log All Events', 'log-events'], ['Record state changes', 'log-desc'],
-    // Hindi reverse map
-    ['डिस्प्ले थीम', 'display-theme'], ['लाइट/डार्क मोड बदलें', 'switch-theme'],
-    ['भाषा', 'language'], ['इंटरफ़ेस भाषा', 'interface-language'],
-    ['तापमान सीमा (°C)', 'temp-threshold'], ['गैस सीमा (ppm)', 'gas-threshold'],
-    ['अलार्म ध्वनि', 'alarm-sound'], ['आवाज़ घोषणा', 'voice-announcement'],
-    ['स्वतः बंद टाइमर', 'auto-dismiss'],
-    ['सभी घटनाएँ लॉग करें', 'log-events'],
-  ];
+  /* Choice buttons in settings */
+  var sdb=q('#s-dark');var slb=q('#s-light');
+  if(sdb){var sdi=sdb.querySelector('i');sdb.innerHTML=(sdi?sdi.outerHTML:'')+T.darkBtn;}
+  if(slb){var sli=slb.querySelector('i');slb.innerHTML=(sli?sli.outerHTML:'')+T.lightBtn;}
 
-  document.querySelectorAll('.set-label').forEach(function(lbl) {
-    var txt = lbl.textContent.trim();
-    settingsMap.forEach(function(pair) {
-      if (txt === pair[0] && T[pair[1]]) lbl.textContent = T[pair[1]];
-    });
-  });
-  document.querySelectorAll('.set-sub').forEach(function(sub) {
-    var txt = sub.textContent.trim();
-    settingsMap.forEach(function(pair) {
-      if (txt === pair[0] && T[pair[1]]) sub.textContent = T[pair[1]];
-    });
+  /* System rows */
+  qa('.sys-row-name').forEach(function(rn){
+    var t=rn.textContent.trim();
+    if(['FIREBASE','फायरबेस'].includes(t))rn.textContent=T.sysFirebase;
+    else if(['UNIT ID','यूनिट आईडी'].includes(t))rn.textContent=T.sysUnit;
+    else if(['GAS DANGER','गैस खतरा'].includes(t))rn.textContent=T.sysGasDanger;
+    else if(['PEAK TEMP','उच्चतम तापमान'].includes(t))rn.textContent=T.sysPeakTemp;
+    else if(['TOTAL EVENTS','कुल घटनाएँ'].includes(t))rn.textContent=T.sysTotalEvents;
+    else if(['UPTIME','अपटाइम'].includes(t))rn.textContent=T.sysUptime;
   });
 
-  // System rows
-  document.querySelectorAll('.sys-row-name').forEach(function(rn) {
-    var txt = rn.textContent.trim();
-    if (txt === 'FIREBASE' || txt === 'फायरबेस') rn.textContent = T['firebase'];
-    else if (txt === 'UNIT ID' || txt === 'यूनिट आईडी') rn.textContent = T['unit-id'];
-    else if (txt === 'GAS DANGER' || txt === 'गैस खतरा') rn.textContent = T['gas-danger'];
-    else if (txt === 'PEAK TEMP' || txt === 'उच्चतम तापमान') rn.textContent = T['peak-temp'];
-    else if (txt === 'TOTAL EVENTS' || txt === 'कुल घटनाएँ') rn.textContent = T['total-events'];
-    else if (txt === 'UPTIME' || txt === 'अपटाइम') rn.textContent = T['uptime'];
-  });
+  /* Alert sidebar */
+  var asExport=q('#export-alerts');
+  if(asExport){var aei=asExport.querySelector('i');asExport.innerHTML=(aei?aei.outerHTML:'')+' CSV';}
+  var asClear=q('#clear-alerts');if(asClear)asClear.textContent=T.clearBtn;
 
-  // Update active state on language buttons
-  document.querySelectorAll('#s-en,#s-hi,#dr-en,#dr-hi,#dd-en,#dd-hi').forEach(function(b) {
-    b.classList.remove('active');
-  });
-  ['#s-' + lang, '#dr-' + lang, '#dd-' + lang].forEach(function(sel) {
-    var el = document.querySelector(sel);
-    if (el) el.classList.add('active');
-  });
+  /* No data states */
+  var asEmpty=q('.as-empty');
+  if(asEmpty)asEmpty.innerHTML='<i class="fas fa-shield-alt"></i>'+T.noAlerts;
+
+  /* Active lang button highlight */
+  qa('#s-en,#s-hi,#dr-en,#dr-hi,#dd-en,#dd-hi').forEach(function(b){b.classList.remove('active');});
+  [q('#s-'+lang),q('#dr-'+lang),q('#dd-'+lang)].forEach(function(b){if(b)b.classList.add('active');});
 }
+
 /* === THEME === */
 function setTheme(t){
   S.theme=t;document.body.classList.toggle('light-mode',t==='light');
@@ -419,8 +363,8 @@ q('#s-dark').addEventListener('click',function(){setTheme('dark');q('#s-light').
 q('#s-light').addEventListener('click',function(){setTheme('light');q('#s-dark').classList.remove('active');this.classList.add('active');});
 q('#s-en').addEventListener('click',function(){setLang('en');});
 q('#s-hi').addEventListener('click',function(){setLang('hi');});
-q('#t-thresh').addEventListener('input',function(){S.threshT=parseInt(this.value);q('#t-v').textContent=this.value+'C';q('#ts-sub').textContent='Trigger at: '+this.value+'C';});
-q('#g-thresh').addEventListener('input',function(){S.threshG=parseInt(this.value);q('#g-v').textContent=this.value;q('#gs-sub').textContent='Trigger at: '+this.value+' ppm';});
+q('#t-thresh').addEventListener('input',function(){S.threshT=parseInt(this.value);q('#t-v').textContent=this.value+'°C';q('#ts-sub').textContent=(S.lang==='hi'?'ट्रिगर: ':'Trigger at: ')+this.value+'°C';});
+q('#g-thresh').addEventListener('input',function(){S.threshG=parseInt(this.value);q('#g-v').textContent=this.value;q('#gs-sub').textContent=(S.lang==='hi'?'ट्रिगर: ':'Trigger at: ')+this.value+' ppm';});
 q('#tog-snd').addEventListener('change',function(){S.snd=this.checked;});
 q('#tog-flash').addEventListener('change',function(){S.flash=this.checked;});
 q('#tog-modal').addEventListener('change',function(){S.modal=this.checked;});
@@ -441,7 +385,7 @@ q('#autodismiss-range').addEventListener('input',function(){
   S.autoDismiss=parseInt(this.value);
   var lbl=S.autoDismiss===0?'OFF':S.autoDismiss+'s';
   q('#autodismiss-v').textContent=lbl;
-  q('#autodismiss-sub').textContent='Dismiss after: '+lbl;
+  q('#autodismiss-sub').textContent=(S.lang==='hi'?'बंद: ':'Dismiss after: ')+lbl;
 });
 
 /* === ALERT SIDEBAR === */
@@ -463,7 +407,8 @@ function addAlert(type,msg){
 }
 function renderAlerts(){
   var body=q('#as-body');
-  if(!S.alerts.length){body.innerHTML='<div class="as-empty"><i class="fas fa-shield-alt"></i>NO ALERTS RECORDED</div>';return;}
+  var T=LANG[S.lang]||LANG['en'];
+  if(!S.alerts.length){body.innerHTML='<div class="as-empty"><i class="fas fa-shield-alt"></i>'+T.noAlerts+'</div>';return;}
   var iMap={danger:'fas fa-exclamation-triangle',warn:'fas fa-exclamation-circle',safe:'fas fa-check-circle'};
   body.innerHTML=S.alerts.map(function(a){
     return '<div class="alert-item '+a.type+'"><div class="ai-icon"><i class="'+iMap[a.type]+'"></i></div><div><div class="ai-msg">'+a.msg+'</div><div class="ai-time">'+a.time+'</div></div></div>';
@@ -488,10 +433,11 @@ function addLog(type,event,val){
 }
 function renderLog(){
   var tbody=q('#log-body');
+  var T=LANG[S.lang]||LANG['en'];
   var rows=S.history.filter(function(r){
     return(activeF==='all'||r.type===activeF)&&(!searchQ||r.event.toLowerCase().indexOf(searchQ)!==-1||r.val.toString().toLowerCase().indexOf(searchQ)!==-1);
   });
-  if(!rows.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:26px;color:var(--text-dim);font-family:var(--mono);font-size:.74rem;letter-spacing:.12em">NO EVENTS</td></tr>';return;}
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:26px;color:var(--text-dim);font-family:var(--mono);font-size:.74rem;letter-spacing:.12em">'+T.noEvents+'</td></tr>';return;}
   tbody.innerHTML=rows.map(function(r){
     return '<tr><td class="t-time">'+r.time+'</td><td class="t-ev">'+r.event+'</td><td style="font-family:var(--mono);font-size:.8rem">'+r.val+'</td><td><span class="t-badge '+r.type+'">'+r.type.toUpperCase()+'</span></td></tr>';
   }).join('');
@@ -543,7 +489,7 @@ function buildReasons(T,G,fal,sos,volt,inact,explosive,flashfire,helmetOff,trapp
   if(inact&&S.trigInact)
     items.push({icon:'fa-person',main:'WORKER INACTIVITY',val:'No movement detected — check on worker at HELMET'});
   if(T>S.threshT&&S.trigTemp)
-    items.push({icon:'fa-temperature-high',main:'HIGH TEMPERATURE',val:T+'C recorded — Safe limit is '+S.threshT+'C on HELMET'});
+    items.push({icon:'fa-temperature-high',main:'HIGH TEMPERATURE',val:T+'°C recorded — Safe limit is '+S.threshT+'°C on HELMET'});
   if(G>S.threshG&&S.trigGas)
     items.push({icon:'fa-smog',main:'TOXIC GAS CRITICAL',val:G+' ppm detected — Danger limit is '+S.threshG+' ppm on HELMET'});
   return items;
@@ -651,7 +597,7 @@ function initChart(){
   wrap.addEventListener('mousemove',function(e){
     var rect=wrap.getBoundingClientRect(),x=e.clientX-rect.left;
     var idx=Math.round((x/cvs2.width)*(S.tArr.length-1));
-    if(idx>=0&&idx<S.tArr.length){tip.style.display='block';tip.style.left=Math.min(x+10,cvs2.width-120)+'px';tip.style.top='4px';tip.innerHTML='TEMP: '+S.tArr[idx]+'C &nbsp;|&nbsp; GAS: '+S.gArr[idx]+'ppm';}
+    if(idx>=0&&idx<S.tArr.length){tip.style.display='block';tip.style.left=Math.min(x+10,cvs2.width-120)+'px';tip.style.top='4px';tip.innerHTML='TEMP: '+S.tArr[idx]+'°C &nbsp;|&nbsp; GAS: '+S.gArr[idx]+'ppm';}
   },{passive:true});
   wrap.addEventListener('mouseleave',function(){tip.style.display='none';},{passive:true});
 }
@@ -705,21 +651,6 @@ function updateCard(cardId,iconId,valId,active,dangerIcon,safeIcon,dangerTxt,saf
 
 /* === MAIN UI UPDATE === */
 function updateUI(data){
-  // ── Firebase field mapping ──────────────────────────────
-  // Temperature        → T
-  // GasLevel_MQ135     → G   (MQ135 sensor)
-  // HeatIndex          → HI
-  // Humidity           → HUM
-  // Fall_Alert         → fal
-  // SOS_Alert          → sos
-  // HighVoltage_Alert  → volt
-  // Inactivity_Alert   → inact
-  // ExplosiveGas_Alert → explosive
-  // FlashFire_Alert    → flashfire
-  // Helmet_Off         → helmetOff
-  // Trapped_Alert      → trapped
-  // Unconscious_Alert  → unconscious
-  // ───────────────────────────────────────────────────────
   var T          = parseFloat(data.Temperature)        || 0;
   var G          = parseFloat(data.GasLevel_MQ135)     || 0;
   var HI         = parseFloat(data.HeatIndex)          || 0;
@@ -734,6 +665,8 @@ function updateUI(data){
   var trapped    = data.Trapped_Alert      == 1;
   var unconscious= data.Unconscious_Alert  == 1;
 
+  var LT=LANG[S.lang]||LANG['en'];
+
   var isDanger=(fal&&S.trigFall)||(sos&&S.trigSos)||(volt&&S.trigVolt)||
                 (inact&&S.trigInact)||(explosive&&S.trigExplosive)||
                 (flashfire&&S.trigFlashFire)||(helmetOff&&S.trigHelmetOff)||
@@ -743,11 +676,10 @@ function updateUI(data){
   S.tArr.push(T);S.gArr.push(G);
   if(S.tArr.length>MAX)S.tArr.shift();if(S.gArr.length>MAX)S.gArr.shift();
   drawChart();
-  if(S.maxTemp===null||T>S.maxTemp){S.maxTemp=T;q('#sys-peak').textContent=T+'C';}
+  if(S.maxTemp===null||T>S.maxTemp){S.maxTemp=T;q('#sys-peak').textContent=T+'°C';}
 
-  // Status bar readings
   var te=q('#sb-temp'),ge=q('#sb-gas');
-  te.textContent=T+'C';ge.textContent=G;
+  te.textContent=T+'°C';ge.textContent=G;
   te.className='sb-rv '+(T>S.threshT?'danger-v':T>S.threshT*0.8?'warn-v':'safe-v');
   ge.className='sb-rv '+(G>S.threshG?'danger-v':G>S.threshG*0.7?'warn-v':'safe-v');
 
@@ -760,68 +692,56 @@ function updateUI(data){
   if(mh)mh.textContent=HI.toFixed(1);
   if(mhu)mhu.textContent=HUM;
 
-  // ── Alert cards ──────────────────────────────────────────
   updateCard('fall-card','fall-icon','fall-val',fal,
-    'fa-person-falling','fa-user-check','FALL DETECTED!','STABLE',
+    'fa-person-falling','fa-user-check',LT.fallDanger,LT.fallSafe,
     'FALL DETECTED — HELMET','Fall Detected','danger');
-
   updateCard('sos-card','sos-icon','sos-val',sos,
-    'fa-sos','fa-hand-paper','SOS ACTIVE!','INACTIVE',
+    'fa-sos','fa-hand-paper',LT.sosDanger,LT.sosSafe,
     'SOS SIGNAL — HELMET','SOS Activated','danger');
-
   updateCard('volt-card','volt-icon','volt-val',volt,
-    'fa-bolt','fa-bolt','HIGH VOLTAGE!','SAFE',
+    'fa-bolt','fa-bolt',LT.voltDanger,LT.voltSafe,
     'HIGH VOLTAGE — HELMET','High Voltage','danger');
-
   updateCard('inact-card','inact-icon','inact-val',inact,
-    'fa-person','fa-person','INACTIVE!','ACTIVE',
+    'fa-person','fa-person',LT.inactDanger,LT.inactSafe,
     'INACTIVITY — HELMET','Inactivity','warn');
-
   updateCard('explosive-card','explosive-icon','explosive-val',explosive,
-    'fa-explosion','fa-wind','EXPLOSIVE GAS!','CLEAR',
+    'fa-explosion','fa-wind',LT.explosiveDanger,LT.explosiveSafe,
     'EXPLOSIVE GAS — HELMET','Explosive Gas','danger');
-
   updateCard('flashfire-card','flashfire-icon','flashfire-val',flashfire,
-    'fa-fire-flame-curved','fa-fire-flame-curved','FLASH FIRE RISK!','CLEAR',
+    'fa-fire-flame-curved','fa-fire-flame-curved',LT.flashfireDanger,LT.flashfireSafe,
     'FLASH FIRE RISK — HELMET','Flash Fire','danger');
-
   updateCard('helmetoff-card','helmetoff-icon','helmetoff-val',helmetOff,
-    'fa-hard-hat','fa-hard-hat','HELMET OFF!','WEARING',
+    'fa-hard-hat','fa-hard-hat',LT.helmetoffDanger,LT.helmetoffSafe,
     'HELMET REMOVED — HELMET','Helmet Off','danger');
-
   updateCard('trapped-card','trapped-icon','trapped-val',trapped,
-    'fa-person-rays','fa-person-rays','TRAPPED!','FREE',
+    'fa-person-rays','fa-person-rays',LT.trappedDanger,LT.trappedSafe,
     'WORKER TRAPPED — HELMET','Trapped Alert','danger');
-
   updateCard('unconscious-card','unconscious-icon','unconscious-val',unconscious,
-    'fa-head-side-mask','fa-head-side-mask','UNCONSCIOUS!','RESPONSIVE',
+    'fa-head-side-mask','fa-head-side-mask',LT.unconsciousDanger,LT.unconsciousSafe,
     'WORKER UNCONSCIOUS — HELMET','Unconscious Alert','danger');
 
-  // ── Gas & Temp log events ────────────────────────────────
-  // Gas: warn at 70% of 900 = 630ppm, danger at 900ppm
   if(G>S.threshG&&(S.prev.G===undefined||S.prev.G<=S.threshG)){
     addAlert('danger','Toxic Gas CRITICAL: '+G+' ppm — HELMET');addLog('danger','Gas Critical (>'+S.threshG+'ppm)',G+'ppm');
   } else if(G>S.threshG*0.7&&!(S.prev.G>S.threshG*0.7)){
     addAlert('warn','Gas Warning: '+G+' ppm — HELMET');addLog('warn','Gas Warning',G+'ppm');
   }
   if(T>S.threshT&&(S.prev.T===undefined||S.prev.T<=S.threshT)){
-    addAlert('danger','High Temp: '+T+'C — HELMET');addLog('danger','Temp Threshold Exceeded',T+'C');
+    addAlert('danger','High Temp: '+T+'°C — HELMET');addLog('danger','Temp Threshold Exceeded',T+'°C');
   } else if(T>S.threshT*0.8&&!(S.prev.T>S.threshT*0.8)){
-    addAlert('warn','Temp Warning: '+T+'C — HELMET');addLog('warn','Temp Warning',T+'C');
+    addAlert('warn','Temp Warning: '+T+'°C — HELMET');addLog('warn','Temp Warning',T+'°C');
   }
 
-  // ── Status banner ────────────────────────────────────────
   var banner=q('#status-banner'),word=q('#sb-word'),sub=q('#sb-sub'),
       hex=q('#sb-hex'),hexi=q('#sb-hex-i'),pill=q('#conn-pill'),
       ptxt=q('#conn-txt'),ab=q('#alert-badge');
 
   if(isDanger){
     banner.style.borderColor='var(--red)';banner.style.boxShadow='0 4px 0 var(--red),inset 0 0 60px rgba(227,0,11,0.05)';
-    word.textContent='DANGER!';word.className='sb-word danger';
-    sub.textContent='Immediate action required — HELMET!';
+    word.textContent=LT.danger;word.className='sb-word danger';
+    sub.textContent=LT.dangerSub;
     hex.className='sb-hex danger-hex';hexi.className='fas fa-radiation';
-    pill.className='status-pill danger';ptxt.textContent='DANGER';
-    ab.className='panel-badge red';ab.textContent='ALERT';
+    pill.className='status-pill danger';ptxt.textContent=LT.connDanger;
+    ab.className='panel-badge red';ab.textContent=LT.badgeAlert;
     q('#emrg-wrap').classList.toggle('active',!!S.flash);
     if(!S.isDanger){
       if(S.snd){var al=q('#alarm');if(al){al.currentTime=0;al.play().catch(function(){});}}
@@ -831,11 +751,11 @@ function updateUI(data){
     }
   } else {
     banner.style.borderColor='var(--yellow)';banner.style.boxShadow='0 4px 0 var(--yellow),inset 0 0 60px rgba(255,214,0,0.03)';
-    word.textContent='ALL CLEAR';word.className='sb-word';
-    sub.textContent='All safety parameters within limits';
+    word.textContent=LT.allClear;word.className='sb-word';
+    sub.textContent=LT.allClearSub;
     hex.className='sb-hex';hexi.className='fas fa-shield-alt';
-    pill.className='status-pill';ptxt.textContent='ALL CLEAR';
-    ab.className='panel-badge';ab.textContent='LIVE';
+    pill.className='status-pill';ptxt.textContent=LT.connClear;
+    ab.className='panel-badge';ab.textContent=LT.badgeLive;
     q('#emrg-wrap').classList.remove('active');
     if(S.isDanger){
       var al2=q('#alarm');if(al2)al2.pause();
@@ -846,7 +766,6 @@ function updateUI(data){
   }
 
   updateHealth(T,G,fal,sos,volt,inact,explosive,flashfire,helmetOff,trapped,unconscious);
-  // store prev state using card IDs for updateCard helper
   S.prev={
     T:T,G:G,
     'fall-card':fal,'sos-card':sos,'volt-card':volt,'inact-card':inact,
@@ -875,4 +794,5 @@ window.addEventListener('load',function(){
     },function(err){console.error('Firebase error:',err);toast('DB ERROR','r');});
   } catch(e){console.error('Firebase init failed:',e);toast('FIREBASE CONFIG MISSING','o');}
 });
+
 
