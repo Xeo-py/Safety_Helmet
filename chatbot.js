@@ -1,11 +1,11 @@
 /* =========================================================
-    SAFENET AI ASSISTANT — chatbot.js
+    SAFENET AI ASSISTANT — chatbot.js  (FIXED)
     Answers ONLY questions about SAFENET dashboard & hardware
    ========================================================= */
 
 (function () {
   /* ── SYSTEM PROMPT ─────────────────────────────────────── */
-    const SYSTEM_PROMPT = `You are SAFENET AI, an assistant embedded in the SAFENET Industrial Worker Safety Monitor dashboard. You ONLY answer questions related to:
+  const SYSTEM_PROMPT = `You are SAFENET AI, an assistant embedded in the SAFENET Industrial Worker Safety Monitor dashboard. You ONLY answer questions related to:
 
 1. THE DASHBOARD (safenet-dashboard):
     - Features: live sensor gauges, alert cards, safety score, event history log, settings
@@ -41,8 +41,8 @@ If a question is NOT about the SAFENET dashboard or hardware, respond with:
 Keep answers concise, technical, and helpful. Use bullet points for lists. Max 120 words per response.`;
 
   /* ── INJECT STYLES ──────────────────────────────────────── */
-    const style = document.createElement('style');
-    style.textContent = `
+  const style = document.createElement('style');
+  style.textContent = `
 #sn-chat-btn {
     position: fixed;
     bottom: 28px;
@@ -82,8 +82,8 @@ Keep answers concise, technical, and helpful. Use bullet points for lists. Max 1
     bottom: 96px;
     right: 28px;
     z-index: 6000;
-    width: min(370px, calc(100vw - 40px));
-    height: min(520px, calc(100vh - 130px));
+    width: min(400px, calc(100vw - 40px));
+    height: min(560px, calc(100vh - 130px));
     background: #0d0d0d;
     border: 3px solid var(--yellow);
     box-shadow: 0 0 40px rgba(255,214,0,0.18), 4px 4px 0 rgba(255,214,0,0.1);
@@ -228,14 +228,72 @@ Keep answers concise, technical, and helpful. Use bullet points for lists. Max 1
 @keyframes typDot { 0%,60%,100%{transform:translateY(0);opacity:.3} 30%{transform:translateY(-5px);opacity:1} }
 .snc-bottom {
     flex-shrink: 0;
-    padding: 10px;
     border-top: 2px solid var(--border);
     background: #111;
     display: flex;
-    gap: 7px;
-    align-items: center;
+    flex-direction: column;
+    gap: 0;
 }
 .light-mode .snc-bottom { background: var(--bg3); }
+.snc-api-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    background: #000;
+}
+.light-mode .snc-api-bar { background: var(--bg2); }
+.snc-api-lbl {
+    font-family: var(--mono);
+    font-size: .55rem;
+    color: var(--text-dim);
+    letter-spacing: .1em;
+    white-space: nowrap;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+.snc-api-input {
+    flex: 1;
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: .68rem;
+    padding: 4px 8px;
+    outline: none;
+    letter-spacing: .05em;
+    min-width: 0;
+}
+.light-mode .snc-api-input { background: var(--bg3); }
+.snc-api-input:focus { border-color: var(--yellow); }
+.snc-api-input::placeholder { color: var(--text-dim); }
+.snc-api-save {
+    padding: 4px 9px;
+    background: var(--yellow);
+    border: none;
+    color: #000;
+    font-family: var(--mono);
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .15s;
+}
+.snc-api-save:hover { background: #fff; }
+.snc-api-status {
+    font-family: var(--mono);
+    font-size: .55rem;
+    letter-spacing: .08em;
+    flex-shrink: 0;
+}
+.snc-input-row {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    padding: 10px;
+}
 .snc-input {
     flex: 1;
     background: #000;
@@ -325,94 +383,139 @@ Keep answers concise, technical, and helpful. Use bullet points for lists. Max 1
 }
 .snc-chip:hover { background: rgba(255,214,0,.1); }
 `;
-    document.head.appendChild(style);
+  document.head.appendChild(style);
 
   /* ── BUILD DOM ──────────────────────────────────────────── */
-    const btn = document.createElement('button');
-    btn.id = 'sn-chat-btn';
-    btn.title = 'SAFENET AI Assistant';
-    btn.innerHTML = '<i class="fas fa-robot"></i><div class="sn-badge"></div>';
-    document.body.appendChild(btn);
+  const btn = document.createElement('button');
+  btn.id = 'sn-chat-btn';
+  btn.title = 'SAFENET AI Assistant';
+  btn.innerHTML = '<i class="fas fa-robot"></i><div class="sn-badge"></div>';
+  document.body.appendChild(btn);
 
-    const panel = document.createElement('div');
-    panel.id = 'sn-chat-panel';
-    panel.innerHTML = `
-    <div class="snc-tape"></div>
-    <div class="snc-head">
-        <div class="snc-head-l">
-        <div class="snc-icon"><i class="fas fa-robot"></i></div>
-        <div>
-            <div class="snc-title">SAFENET AI</div>
-            <div class="snc-subtitle">Hardware &amp; Dashboard Assistant</div>
-        </div>
-        </div>
-        <button class="snc-close" id="snc-close"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="snc-msgs" id="snc-msgs">
-        <div class="snc-intro">
-        <div class="snc-intro-icon"><i class="fas fa-hard-hat"></i></div>
-        <div class="snc-intro-title">ASK ME ANYTHING</div>
-        <div class="snc-intro-sub">I only answer questions about the<br>SAFENET dashboard &amp; smart helmet hardware.</div>
-        <div class="snc-chips">
-            <div class="snc-chip" data-q="What sensors are on the helmet?">Helmet Sensors</div>
-            <div class="snc-chip" data-q="How does fall detection work?">Fall Detection</div>
-            <div class="snc-chip" data-q="What is the health score?">Health Score</div>
-            <div class="snc-chip" data-q="How do I export the event log?">Export CSV</div>
-            <div class="snc-chip" data-q="What does the MQ135 sensor measure?">MQ135 Sensor</div>
-            <div class="snc-chip" data-q="How do I change alert thresholds?">Thresholds</div>
-        </div>
-        </div>
-    </div>
-    <div class="snc-bottom">
-        <input class="snc-input" id="snc-input" type="text" placeholder="Ask about SAFENET hardware or dashboard..." maxlength="300" autocomplete="off">
-        <button class="snc-send" id="snc-send"><i class="fas fa-paper-plane"></i></button>
-    </div>
-    `;
-    document.body.appendChild(panel);
+  const panel = document.createElement('div');
+  panel.id = 'sn-chat-panel';
+  panel.innerHTML = `
+  <div class="snc-tape"></div>
+  <div class="snc-head">
+      <div class="snc-head-l">
+      <div class="snc-icon"><i class="fas fa-robot"></i></div>
+      <div>
+          <div class="snc-title">SAFENET AI</div>
+          <div class="snc-subtitle">Hardware &amp; Dashboard Assistant</div>
+      </div>
+      </div>
+      <button class="snc-close" id="snc-close"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="snc-msgs" id="snc-msgs">
+      <div class="snc-intro">
+      <div class="snc-intro-icon"><i class="fas fa-hard-hat"></i></div>
+      <div class="snc-intro-title">ASK ME ANYTHING</div>
+      <div class="snc-intro-sub">I only answer questions about the<br>SAFENET dashboard &amp; smart helmet hardware.</div>
+      <div class="snc-chips">
+          <div class="snc-chip" data-q="What sensors are on the helmet?">Helmet Sensors</div>
+          <div class="snc-chip" data-q="How does fall detection work?">Fall Detection</div>
+          <div class="snc-chip" data-q="What is the health score?">Health Score</div>
+          <div class="snc-chip" data-q="How do I export the event log?">Export CSV</div>
+          <div class="snc-chip" data-q="What does the MQ135 sensor measure?">MQ135 Sensor</div>
+          <div class="snc-chip" data-q="How do I change alert thresholds?">Thresholds</div>
+      </div>
+      </div>
+  </div>
+  <div class="snc-bottom">
+      <div class="snc-api-bar">
+          <span class="snc-api-lbl">API KEY:</span>
+          <input class="snc-api-input" id="snc-api-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off">
+          <button class="snc-api-save" id="snc-api-save">SET</button>
+          <span class="snc-api-status" id="snc-api-status" style="color:var(--text-dim)">NOT SET</span>
+      </div>
+      <div class="snc-input-row">
+          <input class="snc-input" id="snc-input" type="text" placeholder="Ask about SAFENET hardware or dashboard..." maxlength="300" autocomplete="off">
+          <button class="snc-send" id="snc-send"><i class="fas fa-paper-plane"></i></button>
+      </div>
+  </div>
+  `;
+  document.body.appendChild(panel);
 
   /* ── STATE ──────────────────────────────────────────────── */
-    let isOpen = false;
-    let isLoading = false;
-    let history = [];
+  let isOpen = false;
+  let isLoading = false;
+  let history = [];
+  let apiKey = localStorage.getItem('sn_api_key') || '';
 
-    const msgsEl   = panel.querySelector('#snc-msgs');
-    const inputEl  = panel.querySelector('#snc-input');
-    const sendEl   = panel.querySelector('#snc-send');
+  const msgsEl   = panel.querySelector('#snc-msgs');
+  const inputEl  = panel.querySelector('#snc-input');
+  const sendEl   = panel.querySelector('#snc-send');
+  const apiInput = panel.querySelector('#snc-api-input');
+  const apiSave  = panel.querySelector('#snc-api-save');
+  const apiStatus= panel.querySelector('#snc-api-status');
+
+  // Init API key UI
+  if (apiKey) {
+    apiInput.value = apiKey;
+    setApiStatus(true);
+  }
+
+  apiSave.addEventListener('click', function() {
+    var val = apiInput.value.trim();
+    if (val) {
+      apiKey = val;
+      localStorage.setItem('sn_api_key', val);
+      setApiStatus(true);
+    } else {
+      apiKey = '';
+      localStorage.removeItem('sn_api_key');
+      setApiStatus(false);
+    }
+  });
+
+  function setApiStatus(ok) {
+    apiStatus.textContent = ok ? '✓ READY' : 'NOT SET';
+    apiStatus.style.color = ok ? 'var(--green)' : 'var(--text-dim)';
+  }
 
   /* ── TOGGLE ─────────────────────────────────────────────── */
-    function togglePanel() {
+  function togglePanel() {
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
     if (isOpen) {
-        inputEl.focus();
-        btn.querySelector('.sn-badge').style.display = 'none';
+      inputEl.focus();
+      btn.querySelector('.sn-badge').style.display = 'none';
     }
-    }
-    btn.addEventListener('click', (e) => { e.stopPropagation(); togglePanel(); });
-    panel.querySelector('#snc-close').addEventListener('click', () => { isOpen = false; panel.classList.remove('open'); });
-    document.addEventListener('click', (e) => {
+  }
+  btn.addEventListener('click', function(e) { e.stopPropagation(); togglePanel(); });
+  panel.querySelector('#snc-close').addEventListener('click', function() { isOpen = false; panel.classList.remove('open'); });
+  document.addEventListener('click', function(e) {
     if (isOpen && !panel.contains(e.target) && e.target !== btn) {
-        isOpen = false; panel.classList.remove('open');
+      isOpen = false; panel.classList.remove('open');
     }
-    });
-    panel.addEventListener('click', (e) => e.stopPropagation());
+  });
+  panel.addEventListener('click', function(e) { e.stopPropagation(); });
 
   /* ── QUICK CHIPS ────────────────────────────────────────── */
-    panel.querySelectorAll('.snc-chip').forEach(chip => {
-    chip.addEventListener('click', () => { sendMessage(chip.getAttribute('data-q')); });
-    });
+  panel.querySelectorAll('.snc-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() { sendMessage(chip.getAttribute('data-q')); });
+  });
 
   /* ── SEND ────────────────────────────────────────────────── */
-    inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); } });
-    sendEl.addEventListener('click', () => sendMessage(inputEl.value));
+  inputEl.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); } });
+  sendEl.addEventListener('click', function() { sendMessage(inputEl.value); });
 
-    function sendMessage(text) {
+  function sendMessage(text) {
     text = text.trim();
     if (!text || isLoading) return;
+
+    if (!apiKey) {
+      // Show inline error in chat
+      var intro = msgsEl.querySelector('.snc-intro');
+      if (intro) intro.remove();
+      appendMsg('bot', '⚠ Please enter your Anthropic API key above (sk-ant-...) to use the AI assistant.');
+      return;
+    }
+
     inputEl.value = '';
 
     // Remove intro if present
-    const intro = msgsEl.querySelector('.snc-intro');
+    var intro = msgsEl.querySelector('.snc-intro');
     if (intro) intro.remove();
 
     appendMsg('user', text);
@@ -420,69 +523,92 @@ Keep answers concise, technical, and helpful. Use bullet points for lists. Max 1
 
     setLoading(true);
     callClaude();
-    }
+  }
 
-    function appendMsg(role, content) {
-    const wrap = document.createElement('div');
+  function appendMsg(role, content) {
+    var wrap = document.createElement('div');
     wrap.className = 'snc-msg ' + role;
-    wrap.innerHTML = `<div class="snc-lbl">${role === 'user' ? 'YOU' : 'SAFENET AI'}</div><div class="snc-bubble">${escapeHtml(content)}</div>`;
+    wrap.innerHTML = '<div class="snc-lbl">' + (role === 'user' ? 'YOU' : 'SAFENET AI') + '</div><div class="snc-bubble">' + escapeHtml(content) + '</div>';
     msgsEl.appendChild(wrap);
     msgsEl.scrollTop = msgsEl.scrollHeight;
     return wrap;
-    }
+  }
 
-    function escapeHtml(t) {
+  function escapeHtml(t) {
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-    }
+  }
 
   /* ── TYPING INDICATOR ───────────────────────────────────── */
-    let typingEl = null;
-    function showTyping() {
+  var typingEl = null;
+  function showTyping() {
     typingEl = document.createElement('div');
     typingEl.className = 'snc-msg bot';
     typingEl.innerHTML = '<div class="snc-lbl">SAFENET AI</div><div class="snc-typing"><span></span><span></span><span></span></div>';
     msgsEl.appendChild(typingEl);
     msgsEl.scrollTop = msgsEl.scrollHeight;
-    }
-    function hideTyping() {
+  }
+  function hideTyping() {
     if (typingEl) { typingEl.remove(); typingEl = null; }
-    }
+  }
 
-    function setLoading(val) {
+  function setLoading(val) {
     isLoading = val;
     sendEl.disabled = val;
     inputEl.disabled = val;
     if (val) showTyping(); else hideTyping();
-    }
+  }
 
   /* ── CLAUDE API ─────────────────────────────────────────── */
-    async function callClaude() {
+  async function callClaude() {
     try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            system: SYSTEM_PROMPT,
-            messages: history
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 400,
+          system: SYSTEM_PROMPT,
+          messages: history
         })
-        });
+      });
 
-        const data = await response.json();
-        const reply = data.content?.map(b => b.text || '').join('').trim()
-                    || 'Sorry, I could not process that request.';
-
-        history.push({ role: 'assistant', content: reply });
-
+      if (response.status === 401) {
         setLoading(false);
-        appendMsg('bot', reply);
+        appendMsg('bot', '⚠ Invalid API key. Please check your Anthropic API key and try again.');
+        return;
+      }
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        setLoading(false);
+        appendMsg('bot', '⚠ API error ' + response.status + ': ' + (err.error?.message || 'Unknown error'));
+        return;
+      }
+
+      const data = await response.json();
+      const reply = (data.content || []).map(function(b) { return b.text || ''; }).join('').trim()
+                  || 'Sorry, I could not process that request.';
+
+      history.push({ role: 'assistant', content: reply });
+      // Keep history bounded
+      if (history.length > 20) history = history.slice(-20);
+
+      setLoading(false);
+      appendMsg('bot', reply);
 
     } catch (err) {
-        console.error('SAFENET AI error:', err);
-        setLoading(false);
-        appendMsg('bot', 'Connection error. Please check your network and try again.');
+      console.error('SAFENET AI error:', err);
+      setLoading(false);
+      if (err.message && err.message.includes('CORS')) {
+        appendMsg('bot', '⚠ CORS error: The Anthropic API cannot be called directly from a browser without the "anthropic-dangerous-direct-browser-access" header. Make sure your API key is set correctly.');
+      } else {
+        appendMsg('bot', '⚠ Connection error: ' + (err.message || 'Check network and API key, then retry.'));
+      }
     }
-    }
+  }
 
 })();
